@@ -18,9 +18,14 @@
 
   <button @click="addTile">Add Tile</button>
 
-  <section v-for="(tile, tileIndex) in tiles" :key="tileIndex">
+  <section
+      v-for="(tile, tileIndex) in tiles"
+      :key="tileIndex"
+      :class="{ 'selected': selectedTileIndex === tileIndex }"
+      @click="selectTile(tileIndex)"
+  >
     {{ tileIndex }}
-    <image-data-icon :image-data="tile"></image-data-icon>
+    <image-data-icon :tile="tile"></image-data-icon>
   </section>
 
   <canvas
@@ -54,22 +59,26 @@ export default defineComponent({
   setup(props: any) {
     const selectedPaletteIndex = ref(0);
     const selectedColorIndex = ref(0);
+    const selectedTileIndex = ref(0);
+
     const canvasElement = ref<HTMLCanvasElement | null>(null);
     let canvasContext: CanvasRenderingContext2D;
     const drawPosition = { x: 0, y: 0 };
     let isDrawing = false;
     const currentPixel = ref(0);
-    const { tiles, tileSize } = useTiles();
+    const { tiles, tileSize, drawToTile, tileToImageData } = useTiles();
 
     onMounted(() => {
       if (canvasElement.value) {
-        canvasContext = canvasElement.value.getContext('2d');
+        canvasContext = canvasElement.value.getContext('2d') as CanvasRenderingContext2D;
         canvasContext.imageSmoothingEnabled = false;
       }
     });
 
     function selectPalette(paletteIndex: number) {
       selectedPaletteIndex.value = paletteIndex;
+      const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[paletteIndex]);
+      canvasContext.putImageData(imageData, 0, 0);
     }
 
     function selectColorIndex(colorIndex: number) {
@@ -77,7 +86,13 @@ export default defineComponent({
     }
 
     function addTile() {
-      tiles.value.push(new ImageData(tileSize, tileSize));
+      tiles.value.push(new Array(tileSize * tileSize));
+    }
+
+    function selectTile(index: number) {
+      selectedTileIndex.value = index;
+      const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value]);
+      canvasContext.putImageData(imageData, 0, 0);
     }
 
     function startDrawing(event: MouseEvent) {
@@ -93,20 +108,14 @@ export default defineComponent({
 
       currentPixel.value = pixelX + (pixelY * tileSize);
 
+
       if (!canvasContext || !isDrawing) {
         return;
       }
 
-      const color = props.palettes[selectedPaletteIndex.value][selectedColorIndex.value];
+      const imageData = drawToTile(currentPixel.value, tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value], selectedColorIndex.value);
 
-      canvasContext.beginPath();
-      canvasContext.lineWidth = 1;
-      canvasContext.strokeStyle = color;
-      canvasContext.moveTo(drawPosition.x, drawPosition.y);
-      drawPosition.x = event.offsetX / 20;
-      drawPosition.y = event.offsetY / 20;
-      canvasContext.lineTo(drawPosition.x, drawPosition.y);
-      canvasContext.stroke();
+      canvasContext.putImageData(imageData, 0, 0);
     }
 
     function stopDrawing() {
@@ -125,6 +134,8 @@ export default defineComponent({
       currentPixel,
       addTile,
       tiles,
+      selectTile,
+      selectedTileIndex
     }
   }
 });
@@ -152,6 +163,10 @@ export default defineComponent({
 
 .color.selected {
   border: 3px solid white;
+}
+
+section.selected {
+  background-color: green;
 }
 
 canvas {
