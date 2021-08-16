@@ -15,6 +15,7 @@ function tilesToBytes() {
 }
 
 function tileToImageData(tile: number[], palette: string[]): ImageData {
+  const imageData = new ImageData(tileSize, tileSize);
   tile.forEach(pixelValue => {
 
   })

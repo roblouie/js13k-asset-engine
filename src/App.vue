@@ -2,8 +2,15 @@
   Compressed Size: ~{{ compressedSize }} / 13312 bytes
   <input type="file" @change="loadAssets"/>
   <button @click="saveAssets">Save Assets</button>
+
+  <router-link to="/">Go to Home</router-link>
+  <router-link to="/about">Go to About</router-link>
+
   <palette-maker v-model="palettes"></palette-maker>
   <tile-draw :palettes="palettes"></tile-draw>
+
+  <router-view></router-view>
+
 </template>
 
 <script lang="ts">

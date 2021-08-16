@@ -13,7 +13,7 @@ export function usePalettes() {
 export function palettesToBytes(palettes: string[][]): ArrayBuffer {
  const numberOfPalettes = palettes.length;
 
- const paletteSize = 8* 3; // eight colors, three bytes per color
+ const paletteSize = 8 * 3; // eight colors, three bytes per color
 
  const paletteBuffer = new ArrayBuffer((numberOfPalettes * paletteSize) + 1);
  const dataView = new DataView(paletteBuffer);
