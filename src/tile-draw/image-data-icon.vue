@@ -3,22 +3,27 @@
 </template>
 
 <script>
+import {usePalettes} from "@/palette-maker/palette.composable";
+import {useTiles} from "@/tile-draw/tile.composable";
 import {defineComponent, onMounted, ref} from "vue";
 
 export default defineComponent({
   name: "image-data-icon",
   props: {
-    imageData: {
+    tile: {
       required: true,
-      type: Object,
+      type: Array,
     }
   },
   setup(props) {
+    const { tileToImageData } = useTiles();
+    const { palettes } = usePalettes();
     const canvasElement = ref<HTMLCanvasElement | null>(null);
     onMounted(() => {
       if (canvasElement.value && props.imageData) {
         const context = canvasElement.value.getContext('2d');
-        context.putImageData(props.imageData, 0, 0, 32, 32);
+        const imageData = tileToImageData(props.tile, palettes.value[0]);
+        context.putImageData(imageData, 0, 0, 32, 32);
       }
     })
   }

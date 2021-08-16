@@ -1,26 +1,32 @@
 <template>
   Compressed Size: ~{{ compressedSize }} / 13312 bytes
-  <input type="file" @change="loadAssets"/>
-  <button @click="saveAssets">Save Assets</button>
-  <palette-maker v-model="palettes"></palette-maker>
-  <tile-draw :palettes="palettes"></tile-draw>
+
+  <div>
+    <input type="file" @change="loadAssets"/>
+    <button @click="saveAssets">Save Assets</button>
+  </div>
+
+  <menu>
+    <router-link to="/">Home</router-link>
+    <router-link to="/graphics">Grapics</router-link>
+    <router-link to="/music">Music</router-link>
+  </menu>
+
+  <router-view></router-view>
+
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import PaletteMaker from "@/palette-maker/palette-maker.vue";
 import { palettesToBytes, usePalettes } from "@/palette-maker/palette.composable";
 import JSZip from 'jszip';
 import { unpackGameAssets } from "@/game-asset-unpacker";
 import { packGameAssets } from "@/game-asset-packer";
 import { saveFileToDevice } from "@binary-files/web-file-mover";
-import TileDraw from "@/tile-draw/tile-draw.vue";
 
 export default defineComponent({
   name: 'App',
   components: {
-    TileDraw,
-    PaletteMaker,
   },
   setup() {
     const compressedSize = ref(0);
@@ -87,5 +93,10 @@ export default defineComponent({
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+menu {
+  display: flex;
+  justify-content: space-evenly;
 }
 </style>
