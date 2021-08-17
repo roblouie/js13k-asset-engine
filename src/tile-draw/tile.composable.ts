@@ -3,14 +3,14 @@ import { ref } from "vue";
 const tileSize = 16;
 const tiles = ref<number[][]>([]);
 
-export function useTiles() {
+export function useTiles(): any {
   return {
     tiles,
     tileSize,
     tileToImageData,
     drawToTile,
     tilesToBytes,
-  }
+  };
 }
 
 function tilesToBytes(tiles: number[][]): ArrayBuffer {
