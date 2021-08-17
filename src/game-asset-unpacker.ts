@@ -50,6 +50,8 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
   for (let byteOffset = 1; byteOffset < totalTilesByteSize; byteOffset++) {
     const byte = dataView.getUint8(byteOffset);
     const firstValue = byte & 0xf;
+    const secondValue = (byte >> 4) & 0xf;
+
   }
 
   return {
