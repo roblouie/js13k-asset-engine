@@ -8,8 +8,8 @@ export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex);
   return {
     paletteAsset,
-    tileAsset
-  }
+    tileAsset,
+  };
 }
 
 function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): UnpackedAsset {
@@ -36,7 +36,7 @@ function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): Unpacked
 
   return {
     data: paletteData,
-    finalByteIndex: startingOffset + totalPalettesByteSize
+    finalByteIndex: startingOffset + totalPalettesByteSize,
   };
 }
 
@@ -59,7 +59,7 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
   return {
     data: tileData,
     finalByteIndex: startingOffset + totalTilesByteSize,
-  }
+  };
 }
 
 function chunkArrayInGroups(array: any[], chunkSize: number): string[][] {

@@ -8,7 +8,8 @@
 
   <menu>
     <router-link to="/">Home</router-link>
-    <router-link to="/graphics">Grapics</router-link>
+    <router-link to="/tile-draw">Tile Draw</router-link>
+    <router-link to="/sprite-maker">Sprite Maker</router-link>
     <router-link to="/music">Music</router-link>
   </menu>
 
@@ -74,8 +75,8 @@ export default defineComponent({
 
         fileReader.onerror = () => {
           fileReader.abort();
-          reject(new DOMException('Error parsing file'))
-        }
+          reject(new DOMException('Error parsing file'));
+        };
 
         fileReader.readAsArrayBuffer(file);
       });
@@ -91,8 +92,8 @@ export default defineComponent({
       compressedSize,
       loadAssets,
       saveAssets,
-    }
-  }
+    };
+  },
 });
 </script>
 

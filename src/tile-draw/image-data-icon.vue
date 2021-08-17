@@ -13,7 +13,7 @@ export default defineComponent({
     tile: {
       required: true,
       type: Array,
-    }
+    },
   },
   setup(props) {
     const { tileToImageData } = useTiles();
@@ -24,6 +24,10 @@ export default defineComponent({
     onMounted(() => {
       if (canvasElement.value && props.tile) {
         const context = canvasElement.value.getContext('2d');
+        if (!context) {
+          return;
+        }
+        context.imageSmoothingEnabled = false;
         const imageData = tileToImageData(props.tile as number[], palettes.value[0]);
         context?.putImageData(imageData, 0, 0, 0, 0, 32, 32);
       }
@@ -31,9 +35,9 @@ export default defineComponent({
 
     return {
       canvasElement,
-    }
-  }
-})
+    };
+  },
+});
 </script>
 
 <style scoped>

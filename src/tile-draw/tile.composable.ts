@@ -46,7 +46,7 @@ function tileToImageData(tile: number[], palette: string[]): ImageData {
     imageData.data[imageDataIndex] = red;
     imageData.data[imageDataIndex + 1] = green;
     imageData.data[imageDataIndex + 2] = blue;
-    imageData.data[imageDataIndex + 3] = 255;
+    imageData.data[imageDataIndex + 3] = (colorString === '#000000' && pixelValue === 0) ? 0 : 255;
   });
 
   return imageData;
