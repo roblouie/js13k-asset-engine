@@ -1,14 +1,8 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
-import Home from '../views/Home.vue'
-import Graphics from '../graphics.vue';
-import Music from '../music.vue';
+import Graphics from '../graphics.vue'
+import Music from '../Music.vue'
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
   {
     path: '/graphics',
     name: 'Graphics',

@@ -1,17 +1,16 @@
-import { directoryOpen, fileSave } from "browser-fs-access";
+import { directoryOpen, fileSave } from 'browser-fs-access'
 
-
-export async function openAssets() {
+export async function openAssets () {
   const blobsInDirectory = await directoryOpen({
-    recursive: true,
-  });
+    recursive: true
+  })
 
   const testOptions = {
     fileName: 'new.txt',
-    extensions: ['.txt'],
+    extensions: ['.txt']
   }
 
-  await fileSave(blobsInDirectory[0]);
+  await fileSave(blobsInDirectory[0])
 
-  console.log(blobsInDirectory);
+  console.log(blobsInDirectory)
 }
