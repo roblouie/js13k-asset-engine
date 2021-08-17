@@ -18,12 +18,15 @@
         v-for="(selectedNote, selectedIndex) in selectedNotePositions"
         :key="selectedIndex"
         class="selected-note"
+        @click="toggleGridSquare(selectedNote.note, selectedNote.startPosition)"
         :style="selectedNote.style">
         <div
           class="right-border"
-          @mousedown="startNoteResize"
-          @mouseup="finalizeNoteResize"
-          @mousemove="resizeNote"
+          @click.stop="expandNote(selectedNote)"
+        />
+        <div
+          class="left-border"
+          @click.stop="contractNote(selectedNote)"
         />
       </div>
     </div>
@@ -40,7 +43,7 @@ interface Note {
 }
 
 interface NotePosition {
-  frequency: number;
+  note: Note
   startPosition: number;
   duration: number;
   style: {
@@ -119,16 +122,12 @@ export default defineComponent({
     allNotes.reverse();
 
     const selectedNotePositions = ref<NotePosition[]>([]);
-    let isResizing = false;
     const grid = ref<HTMLElement | undefined>();
 
-    function toggleGridSquare(note: Note, gridPosition: number, boundingRect: any) {
-      if (isResizing)  {
-        return;
-      }
+    function toggleGridSquare(note: Note, gridPosition: number, boundingRect?: any) {
       if (isSquareSelected(note, gridPosition)) {
         const alreadySelectedIndex = selectedNotePositions.value.findIndex(position => {
-          return position.frequency === note.frequency && position.startPosition === gridPosition;
+          return position.note.frequency === note.frequency && position.startPosition === gridPosition;
         });
         selectedNotePositions.value.splice(alreadySelectedIndex, 1);
         return;
@@ -141,7 +140,7 @@ export default defineComponent({
 
       selectedNotePositions.value.push(
         {
-          frequency: note.frequency,
+          note: note,
           startPosition: gridPosition,
           duration: 1,
           style: {
@@ -151,30 +150,34 @@ export default defineComponent({
           },
         },
       );
-      console.log(selectedNotePositions.value);
     }
 
     function isSquareSelected(note: Note, gridPosition: number): boolean {
       return !!selectedNotePositions.value.find(position => {
-        return position.frequency === note.frequency && position.startPosition === gridPosition;
+        return position.note.frequency === note.frequency && position.startPosition === gridPosition;
       });
     }
 
-    function startNoteResize(event: MouseEvent) {
-      isResizing = true;
+    function expandNote(notePosition: NotePosition) {
+      const { width } = notePosition.style;
+      const widthValue = parseInt(width.split('p')[0], 10);
+      notePosition.duration += 1;
+      notePosition.style.width = `${widthValue + 25}px`;
     }
 
-    function resizeNote(event: any) {
-      if (!isResizing) {
+    function contractNote(notePosition: NotePosition) {
+      if (notePosition.duration === 1) {
+        // const indexToRemove = selectedNotePositions.value.findIndex(oldPosition => {
+        //   return oldPosition.note.frequency === notePosition.note.frequency && oldPosition.startPosition === notePosition.startPosition;
+        // });
+        // selectedNotePositions.value.splice(indexToRemove, 1);
+        toggleGridSquare(notePosition.note, notePosition.startPosition);
         return;
       }
-      // debugger;
-      // console.log(event);
-      // event.target.style.width = event.x - event.target.style.left;
-    }
-
-    function finalizeNoteResize(event: MouseEvent) {
-      isResizing = false;
+      const { width } = notePosition.style;
+      const widthValue = parseInt(width.split('p')[0], 10);
+      notePosition.duration -= 1;
+      notePosition.style.width  = `${widthValue - 25}px`;
     }
 
 
@@ -183,9 +186,8 @@ export default defineComponent({
       grid,
       toggleGridSquare,
       selectedNotePositions,
-      startNoteResize,
-      resizeNote,
-      finalizeNoteResize,
+      expandNote,
+      contractNote,
     };
   },
 });
@@ -241,7 +243,16 @@ export default defineComponent({
   height: 100%;
   width: 3px;
   position: absolute;
-  left: 25px;
+  right: 0;
+  top: 0;
+  cursor: ew-resize;
+}
+
+.left-border {
+  height: 100%;
+  width: 3px;
+  position: absolute;
+  left: 0;
   top: 0;
   cursor: ew-resize;
 }
