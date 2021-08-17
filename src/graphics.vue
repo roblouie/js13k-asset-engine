@@ -4,19 +4,19 @@
 </template>
 
 <script>
-import PaletteMaker from "@/palette-maker/palette-maker";
-import {usePalettes} from "@/palette-maker/palette.composable";
-import TileDraw from "@/tile-draw/tile-draw";
-import {defineComponent} from "vue";
+import PaletteMaker from '@/palette-maker/palette-maker'
+import { usePalettes } from '@/palette-maker/palette.composable'
+import TileDraw from '@/tile-draw/tile-draw'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: "graphics",
-  components: {PaletteMaker, TileDraw},
-  setup() {
-    const { palettes } = usePalettes();
+  name: 'graphics',
+  components: { PaletteMaker, TileDraw },
+  setup () {
+    const { palettes } = usePalettes()
 
     return {
-      palettes,
+      palettes
     }
   }
 })
