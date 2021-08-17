@@ -19,7 +19,9 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': ["error", { "functions": false, "classes": true }],
     '@typescript-eslint/no-empty-function': 'warn',
     'comma-dangle': ['warn', 'always-multiline'],
+    'comma': ['warn', 'single'],
     'semi': 'warn',
+    'indent': ['warn', 2],
     'space-before-function-paren': ['warn', {"anonymous": "never", "named": "never"}],
   },
   overrides: [

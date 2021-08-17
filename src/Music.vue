@@ -1,17 +1,16 @@
 <template>
   <div>
-    MUSIC STUFF
+    <sound-create />
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue';
+import SoundCreate from "@/sound/SoundCreate";
 
 export default defineComponent({
   name: 'music',
-  setup() {
-
-  }
+  components: {SoundCreate}
 });
 </script>
 
