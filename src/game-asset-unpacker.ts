@@ -5,15 +5,17 @@ interface UnpackedAsset {
 
 export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const paletteAsset = bytesToPalettes(arrayBuffer, 0);
+  const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex + 1);
   return {
-    paletteAsset
+    paletteAsset,
+    tileAsset
   }
 }
 
 function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): UnpackedAsset {
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfPalettes = dataView.getUint8(0);
-  const paletteSize = 8 * 3; // eight colors, three bytes per color
+  const paletteSize = 16 * 3; // sixteen colors, three bytes per color
   const totalPalettesByteSize = (numberOfPalettes * paletteSize) + 1;
 
   const palettes = [];
@@ -30,12 +32,30 @@ function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): Unpacked
     palettes.push('#' + byte0String + byte1String + byte2String);
   }
 
-  const paletteData = chunkArrayInGroups(palettes, 8);
+  const paletteData = chunkArrayInGroups(palettes, 16);
 
   return {
     data: paletteData,
     finalByteIndex: startingOffset + totalPalettesByteSize
   };
+}
+
+function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
+  const dataView = new DataView(arrayBuffer, startingOffset);
+  const numberOfTiles = dataView.getUint8(startingOffset);
+  const totalTilesByteSize = (numberOfTiles * 128) + 1;
+
+  const tiles: number[][] = [];
+
+  for (let byteOffset = 1; byteOffset < totalTilesByteSize; byteOffset++) {
+    const byte = dataView.getUint8(byteOffset);
+    const firstValue = byte & 0xf;
+  }
+
+  return {
+    data: tiles,
+    finalByteIndex: startingOffset + totalTilesByteSize,
+  }
 }
 
 function chunkArrayInGroups(array: any[], chunkSize: number): string[][] {

@@ -1,7 +1,7 @@
 import { ref } from "vue";
 
 const tileSize = 16;
-const tiles = ref<number[][]>([new Array(tileSize * tileSize)]);
+const tiles = ref<number[][]>([]);
 
 export function useTiles() {
   return {
@@ -9,11 +9,30 @@ export function useTiles() {
     tileSize,
     tileToImageData,
     drawToTile,
+    tilesToBytes,
   }
 }
 
-function tilesToBytes(tiles: number[]) {
+function tilesToBytes(tiles: number[][]): ArrayBuffer {
+  const numberOfTiles = tiles.length;
+  const numberOfBytes = (numberOfTiles * tileSize * tileSize) / 2;
+  const tileBuffer = new ArrayBuffer(numberOfBytes + 1);
 
+  const dataView = new DataView(tileBuffer);
+  dataView.setUint8(0, numberOfTiles);
+
+  const flatTiles = tiles.flat();
+
+  for (let i = 0; i < flatTiles.length; i+= 2) {
+    const firstPixel = flatTiles[i];
+    const secondPixel = flatTiles[i + 1];
+
+    const byte = firstPixel + (secondPixel << 4);
+    const byteIndex = (i / 2) + 1;
+    dataView.setUint8(byte, byteIndex);
+  }
+
+  return tileBuffer;
 }
 
 function tileToImageData(tile: number[], palette: string[]): ImageData {

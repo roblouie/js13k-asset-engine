@@ -66,7 +66,7 @@ export default defineComponent({
     const drawPosition = { x: 0, y: 0 };
     let isDrawing = false;
     const currentPixel = ref(0);
-    const { tiles, tileSize, drawToTile, tileToImageData } = useTiles();
+    const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes } = useTiles();
 
     onMounted(() => {
       if (canvasElement.value) {
@@ -86,13 +86,14 @@ export default defineComponent({
     }
 
     function addTile() {
-      tiles.value.push(new Array(tileSize * tileSize));
+      tiles.value.push(new Array(tileSize * tileSize).fill(0));
     }
 
     function selectTile(index: number) {
       selectedTileIndex.value = index;
       const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value]);
       canvasContext.putImageData(imageData, 0, 0);
+      tilesToBytes(tiles.value);
     }
 
     function startDrawing(event: MouseEvent) {
