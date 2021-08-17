@@ -16,29 +16,37 @@
     />
   </section>
 
-  <button @click="addTile">Add Tile</button>
+  <div class="draw-wrapper">
 
-  <section
-      v-for="(tile, tileIndex) in tiles"
-      :key="tileIndex"
-      :class="{ 'selected': selectedTileIndex === tileIndex }"
-      @click="selectTile(tileIndex)"
-  >
-    {{ tileIndex }}
-    <image-data-icon :tile="tile"></image-data-icon>
-  </section>
+    <div>
+      <button @click="addTile">Add Tile</button>
 
-  <canvas
-      ref="canvasElement"
-      width="16"
-      height="16"
-      style="width: 320px; height: 320px;"
-      @mousedown="startDrawing"
-      @mousemove="draw"
-      @mouseup="stopDrawing"
-  ></canvas>
-  <div>
-  {{ currentPixel }}
+      <section
+          v-for="(tile, tileIndex) in tiles"
+          :key="tileIndex"
+          :class="{ 'selected': selectedTileIndex === tileIndex }"
+          @click="selectTile(tileIndex)"
+      >
+        {{ tileIndex }}
+        <image-data-icon :tile="tile"></image-data-icon>
+      </section>
+    </div>
+
+    <div>
+      <canvas
+          ref="canvasElement"
+          width="16"
+          height="16"
+          style="width: 320px; height: 320px;"
+          @mousedown="startDrawing"
+          @mousemove="draw"
+          @mouseup="stopDrawing"
+          @mouseout="stopDrawing"
+      ></canvas>
+      <div>
+        {{ currentPixel }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -110,7 +118,8 @@ export default defineComponent({
       currentPixel.value = pixelX + (pixelY * tileSize);
 
 
-      if (!canvasContext || !isDrawing) {
+      if (!canvasContext || !isDrawing || currentPixel.value < 0 || currentPixel.value > 255) {
+        isDrawing = false;
         return;
       }
 
@@ -173,5 +182,10 @@ section.selected {
 canvas {
   border: 1px solid black;
   image-rendering: pixelated;
+}
+
+.draw-wrapper {
+  display: flex;
+  justify-content: space-evenly;
 }
 </style>
