@@ -18,36 +18,36 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import { palettesToBytes, usePalettes } from "@/palette-maker/palette.composable";
+import { palettesToBytes, usePalettes } from '@/palette-maker/palette.composable';
 import JSZip from 'jszip';
-import { unpackGameAssets } from "@/game-asset-unpacker";
-import { packGameAssets } from "@/game-asset-packer";
-import { saveFileToDevice } from "@binary-files/web-file-mover";
-import { useTiles } from "@/tile-draw/tile.composable";
+import { unpackGameAssets } from '@/game-asset-unpacker';
+import { packGameAssets } from '@/game-asset-packer';
+import { saveFileToDevice } from '@binary-files/web-file-mover';
+import { useTiles } from '@/tile-draw/tile.composable';
 
 export default defineComponent({
   name: 'App',
   components: {
   },
-  setup() {
+  setup () {
     const compressedSize = ref(0);
     const { palettes } = usePalettes();
     const { tiles } = useTiles();
 
-    //TODO: Update to use game-asset-packer and pack all assets when any change
+    // TODO: Update to use game-asset-packer and pack all assets when any change
     watch(palettes, values => {
       const zip = new JSZip();
       const bytes = palettesToBytes(values);
       zip.file('test.zip', bytes, {
         binary: true,
-        compression: 'DEFLATE',
+        compression: 'DEFLATE'
       })
-      .generateAsync({type: 'uint8array'}).then((file: any) => {
-        compressedSize.value = file.length;
-      });
+        .generateAsync({ type: 'uint8array' }).then((file: any) => {
+          compressedSize.value = file.length;
+        });
     }, { deep: true });
 
-    async function loadAssets(event: any) {
+    async function loadAssets (event: any) {
       const fileElement = event.target as HTMLInputElement;
 
       if (fileElement.files && fileElement.files[0]) {
@@ -57,7 +57,7 @@ export default defineComponent({
       }
     }
 
-    function fileToArrayBuffer(file: File): Promise<ArrayBuffer> {
+    function fileToArrayBuffer (file: File): Promise<ArrayBuffer> {
       const fileReader = new FileReader();
 
       return new Promise((resolve, reject) => {
@@ -65,14 +65,14 @@ export default defineComponent({
 
         fileReader.onerror = () => {
           fileReader.abort();
-          reject(new DOMException('Error parsing file'))
-        }
+          reject(new DOMException('Error parsing file'));
+        };
 
         fileReader.readAsArrayBuffer(file);
       });
     }
 
-    function saveAssets() {
+    function saveAssets () {
       const assetBuffer = packGameAssets(palettes.value, tiles.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
@@ -81,8 +81,8 @@ export default defineComponent({
       palettes,
       compressedSize,
       loadAssets,
-      saveAssets,
-    }
+      saveAssets
+    };
   }
 });
 </script>

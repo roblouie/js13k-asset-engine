@@ -43,84 +43,83 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
-import { useTiles } from "@/tile-draw/tile.composable";
-import ImageDataIcon from "@/tile-draw/image-data-icon.vue";
+import { defineComponent, ref, onMounted } from 'vue'
+import { useTiles } from '@/tile-draw/tile.composable'
+import ImageDataIcon from '@/tile-draw/image-data-icon.vue'
 
 export default defineComponent({
-  name: "tile-draw",
-  components: {ImageDataIcon},
+  name: 'tile-draw',
+  components: { ImageDataIcon },
   props: {
     palettes: {
       required: true,
-      type: Array,
+      type: Array
     }
   },
-  setup(props: any) {
-    const selectedPaletteIndex = ref(0);
-    const selectedColorIndex = ref(0);
-    const selectedTileIndex = ref(0);
+  setup (props: any) {
+    const selectedPaletteIndex = ref(0)
+    const selectedColorIndex = ref(0)
+    const selectedTileIndex = ref(0)
 
-    const canvasElement = ref<HTMLCanvasElement | null>(null);
-    let canvasContext: CanvasRenderingContext2D;
-    const drawPosition = { x: 0, y: 0 };
-    let isDrawing = false;
-    const currentPixel = ref(0);
-    const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes } = useTiles();
+    const canvasElement = ref<HTMLCanvasElement | null>(null)
+    let canvasContext: CanvasRenderingContext2D
+    const drawPosition = { x: 0, y: 0 }
+    let isDrawing = false
+    const currentPixel = ref(0)
+    const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes } = useTiles()
 
     onMounted(() => {
       if (canvasElement.value) {
-        canvasContext = canvasElement.value.getContext('2d') as CanvasRenderingContext2D;
-        canvasContext.imageSmoothingEnabled = false;
+        canvasContext = canvasElement.value.getContext('2d') as CanvasRenderingContext2D
+        canvasContext.imageSmoothingEnabled = false
       }
-    });
+    })
 
-    function selectPalette(paletteIndex: number) {
-      selectedPaletteIndex.value = paletteIndex;
-      const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[paletteIndex]);
-      canvasContext.putImageData(imageData, 0, 0);
+    function selectPalette (paletteIndex: number) {
+      selectedPaletteIndex.value = paletteIndex
+      const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[paletteIndex])
+      canvasContext.putImageData(imageData, 0, 0)
     }
 
-    function selectColorIndex(colorIndex: number) {
-      selectedColorIndex.value = colorIndex;
+    function selectColorIndex (colorIndex: number) {
+      selectedColorIndex.value = colorIndex
     }
 
-    function addTile() {
-      tiles.value.push(new Array(tileSize * tileSize).fill(0));
+    function addTile () {
+      tiles.value.push(new Array(tileSize * tileSize).fill(0))
     }
 
-    function selectTile(index: number) {
-      selectedTileIndex.value = index;
-      const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value]);
-      canvasContext.putImageData(imageData, 0, 0);
-      tilesToBytes(tiles.value);
+    function selectTile (index: number) {
+      selectedTileIndex.value = index
+      const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value])
+      canvasContext.putImageData(imageData, 0, 0)
+      tilesToBytes(tiles.value)
     }
 
-    function startDrawing(event: MouseEvent) {
-      isDrawing = true;
-      canvasContext.imageSmoothingEnabled = false;
-      drawPosition.x = event.offsetX / 20;
-      drawPosition.y = event.offsetY / 20;
+    function startDrawing (event: MouseEvent) {
+      isDrawing = true
+      canvasContext.imageSmoothingEnabled = false
+      drawPosition.x = event.offsetX / 20
+      drawPosition.y = event.offsetY / 20
     }
 
-    function draw(event: MouseEvent) {
-      const pixelX = Math.floor(event.offsetX / 20);
-      const pixelY = Math.floor(event.offsetY / 20);
+    function draw (event: MouseEvent) {
+      const pixelX = Math.floor(event.offsetX / 20)
+      const pixelY = Math.floor(event.offsetY / 20)
 
-      currentPixel.value = pixelX + (pixelY * tileSize);
-
+      currentPixel.value = pixelX + (pixelY * tileSize)
 
       if (!canvasContext || !isDrawing) {
-        return;
+        return
       }
 
-      const imageData = drawToTile(currentPixel.value, tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value], selectedColorIndex.value);
+      const imageData = drawToTile(currentPixel.value, tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value], selectedColorIndex.value)
 
-      canvasContext.putImageData(imageData, 0, 0);
+      canvasContext.putImageData(imageData, 0, 0)
     }
 
-    function stopDrawing() {
-      isDrawing = false;
+    function stopDrawing () {
+      isDrawing = false
     }
 
     return {
@@ -139,7 +138,7 @@ export default defineComponent({
       selectedTileIndex
     }
   }
-});
+})
 </script>
 
 <style scoped>

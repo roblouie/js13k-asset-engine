@@ -19,33 +19,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
-import { usePalettes } from "@/palette-maker/palette.composable";
+import { defineComponent, computed } from 'vue'
+import { usePalettes } from '@/palette-maker/palette.composable'
 
 export default defineComponent({
-  name: "palette-maker",
+  name: 'palette-maker',
   props: {
-    modelValue: Array,
+    modelValue: Array
   },
-  setup(props: any, { emit }) {
-    const { selectedPaletteIndex } = usePalettes();
+  setup (props: any, { emit }) {
+    const { selectedPaletteIndex } = usePalettes()
 
     const palettes = computed({
       get: () => props.modelValue,
       set: value => emit('update:modelValue', value)
     })
 
-    function addPalette() {
-      const newPalette = ['#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000'];
-      palettes.value = [...props.modelValue, newPalette];
+    function addPalette () {
+      const newPalette = ['#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000']
+      palettes.value = [...props.modelValue, newPalette]
     }
 
-    function saveColorChange(event: InputEvent, paletteIndex: number, colorIndex: number) {
-      palettes.value[paletteIndex][colorIndex] = (event.target as HTMLInputElement).value;
+    function saveColorChange (event: InputEvent, paletteIndex: number, colorIndex: number) {
+      palettes.value[paletteIndex][colorIndex] = (event.target as HTMLInputElement).value
     }
 
-    function selectPalette(paletteIndex: number) {
-      selectedPaletteIndex.value = paletteIndex;
+    function selectPalette (paletteIndex: number) {
+      selectedPaletteIndex.value = paletteIndex
     }
 
     return {
@@ -56,7 +56,7 @@ export default defineComponent({
       selectedPaletteIndex
     }
   }
-});
+})
 </script>
 
 <style scoped>

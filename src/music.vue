@@ -1,15 +1,18 @@
 <template>
- <div>
-   MUSIC STUFF
- </div>
+  <div>
+    MUSIC STUFF
+  </div>
 </template>
 
 <script>
-import {defineComponent} from "vue";
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: "music"
-})
+  name: 'music',
+  setup() {
+
+  }
+});
 </script>
 
 <style scoped>
