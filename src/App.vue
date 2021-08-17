@@ -23,6 +23,7 @@ import JSZip from 'jszip';
 import { unpackGameAssets } from "@/game-asset-unpacker";
 import { packGameAssets } from "@/game-asset-packer";
 import { saveFileToDevice } from "@binary-files/web-file-mover";
+import { useTiles } from "@/tile-draw/tile.composable";
 
 export default defineComponent({
   name: 'App',
@@ -31,6 +32,7 @@ export default defineComponent({
   setup() {
     const compressedSize = ref(0);
     const { palettes } = usePalettes();
+    const { tiles } = useTiles();
 
     //TODO: Update to use game-asset-packer and pack all assets when any change
     watch(palettes, values => {
@@ -71,7 +73,7 @@ export default defineComponent({
     }
 
     function saveAssets() {
-      const assetBuffer = packGameAssets(palettes.value);
+      const assetBuffer = packGameAssets(palettes.value, tiles.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
 
