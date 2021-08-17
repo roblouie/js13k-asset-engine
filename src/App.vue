@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import { palettesToBytes, usePalettes } from "@/palette-maker/palette.composable";
+import { usePalettes } from "@/palette-maker/palette.composable";
 import JSZip from 'jszip';
 import { unpackGameAssets } from "@/game-asset-unpacker";
 import { packGameAssets } from "@/game-asset-packer";
@@ -34,26 +34,35 @@ export default defineComponent({
     const { palettes } = usePalettes();
     const { tiles } = useTiles();
 
-    //TODO: Update to use game-asset-packer and pack all assets when any change
-    watch(palettes, values => {
+    watch(palettes, updateCompressedAssetSize, { deep: true });
+    watch(tiles, updateCompressedAssetSize, { deep: true });
+
+    async function updateCompressedAssetSize() {
+      const bytes = packGameAssets(palettes.value, tiles.value);
+      compressedSize.value = await getCompressedSize(bytes);
+    }
+
+    async function getCompressedSize(assetBytes: ArrayBuffer) {
       const zip = new JSZip();
-      const bytes = palettesToBytes(values);
-      zip.file('test.zip', bytes, {
+
+      const file = await zip.file('test.zip', assetBytes, {
         binary: true,
         compression: 'DEFLATE',
       })
-      .generateAsync({type: 'uint8array'}).then((file: any) => {
-        compressedSize.value = file.length;
-      });
-    }, { deep: true });
+          .generateAsync({type: 'uint8array'});
+
+      return file.length;
+    }
 
     async function loadAssets(event: any) {
       const fileElement = event.target as HTMLInputElement;
 
       if (fileElement.files && fileElement.files[0]) {
         const assetArrayBuffer = await fileToArrayBuffer(fileElement.files[0]);
-        const { paletteAsset } = unpackGameAssets(assetArrayBuffer);
+        compressedSize.value = await getCompressedSize(assetArrayBuffer);
+        const { paletteAsset, tileAsset } = unpackGameAssets(assetArrayBuffer);
         palettes.value = paletteAsset.data;
+        tiles.value = tileAsset.data;
       }
     }
 

@@ -29,7 +29,7 @@ function tilesToBytes(tiles: number[][]): ArrayBuffer {
 
     const byte = firstPixel + (secondPixel << 4);
     const byteIndex = (i / 2) + 1;
-    dataView.setUint8(byte, byteIndex);
+    dataView.setUint8(byteIndex, byte);
   }
 
   return tileBuffer;

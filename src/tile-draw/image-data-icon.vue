@@ -1,8 +1,8 @@
 <template>
-  <canvas ref="canvasElement" width="32" height="32"></canvas>
+  <canvas ref="canvasElement" width="16" height="16" style="width: 32px; height: 32px;"></canvas>
 </template>
 
-<script>
+<script lang="ts">
 import {usePalettes} from "@/palette-maker/palette.composable";
 import {useTiles} from "@/tile-draw/tile.composable";
 import {defineComponent, onMounted, ref} from "vue";
@@ -18,14 +18,20 @@ export default defineComponent({
   setup(props) {
     const { tileToImageData } = useTiles();
     const { palettes } = usePalettes();
+
     const canvasElement = ref<HTMLCanvasElement | null>(null);
+
     onMounted(() => {
-      if (canvasElement.value && props.imageData) {
+      if (canvasElement.value && props.tile) {
         const context = canvasElement.value.getContext('2d');
-        const imageData = tileToImageData(props.tile, palettes.value[0]);
-        context.putImageData(imageData, 0, 0, 32, 32);
+        const imageData = tileToImageData(props.tile as number[], palettes.value[0]);
+        context?.putImageData(imageData, 0, 0, 0, 0, 32, 32);
       }
-    })
+    });
+
+    return {
+      canvasElement,
+    }
   }
 })
 </script>

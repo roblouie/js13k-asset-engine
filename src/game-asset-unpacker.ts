@@ -5,7 +5,7 @@ interface UnpackedAsset {
 
 export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const paletteAsset = bytesToPalettes(arrayBuffer, 0);
-  const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex + 1);
+  const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex);
   return {
     paletteAsset,
     tileAsset
@@ -42,20 +42,22 @@ function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): Unpacked
 
 function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
   const dataView = new DataView(arrayBuffer, startingOffset);
-  const numberOfTiles = dataView.getUint8(startingOffset);
+  const numberOfTiles = dataView.getUint8(0);
   const totalTilesByteSize = (numberOfTiles * 128) + 1;
 
-  const tiles: number[][] = [];
+  const rawTileValues: number[] = [];
 
   for (let byteOffset = 1; byteOffset < totalTilesByteSize; byteOffset++) {
     const byte = dataView.getUint8(byteOffset);
     const firstValue = byte & 0xf;
     const secondValue = (byte >> 4) & 0xf;
-
+    rawTileValues.push(firstValue, secondValue);
   }
 
+  const tileData = chunkArrayInGroups(rawTileValues, 256);
+
   return {
-    data: tiles,
+    data: tileData,
     finalByteIndex: startingOffset + totalTilesByteSize,
   }
 }

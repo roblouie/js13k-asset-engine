@@ -10,7 +10,6 @@ export function packGameAssets(palettes: string[][], tiles: number[][]): ArrayBu
   const tilesBytes = new Uint8Array(tilesBuffer);
   const combinedBytes = new Uint8Array(palettesBytes.byteLength + tilesBytes.byteLength);
 
-
   combinedBytes.set(palettesBytes);
   combinedBytes.set(tilesBytes, palettesBytes.byteLength);
 
