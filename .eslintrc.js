@@ -20,6 +20,7 @@ module.exports = {
     '@typescript-eslint/no-empty-function': 'warn',
     'comma-dangle': 'warn',
     'semi': 'warn',
+    'space-before-function-paren': ['warn', {"anonymous": "never", "named": "never"}],
   },
   overrides: [
     {

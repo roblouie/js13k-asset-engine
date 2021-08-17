@@ -29,7 +29,7 @@ export default defineComponent({
   name: 'App',
   components: {
   },
-  setup () {
+  setup() {
     const compressedSize = ref(0);
     const { palettes } = usePalettes();
     const { tiles } = useTiles();
@@ -47,7 +47,7 @@ export default defineComponent({
         });
     }, { deep: true });
 
-    async function loadAssets (event: any) {
+    async function loadAssets(event: any) {
       const fileElement = event.target as HTMLInputElement;
 
       if (fileElement.files && fileElement.files[0]) {
@@ -57,7 +57,7 @@ export default defineComponent({
       }
     }
 
-    function fileToArrayBuffer (file: File): Promise<ArrayBuffer> {
+    function fileToArrayBuffer(file: File): Promise<ArrayBuffer> {
       const fileReader = new FileReader();
 
       return new Promise((resolve, reject) => {
@@ -66,13 +66,14 @@ export default defineComponent({
         fileReader.onerror = () => {
           fileReader.abort();
           reject(new DOMException('Error parsing file'));
+
         };
 
         fileReader.readAsArrayBuffer(file);
       });
     }
 
-    function saveAssets () {
+    function saveAssets() {
       const assetBuffer = packGameAssets(palettes.value, tiles.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
