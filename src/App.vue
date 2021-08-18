@@ -24,6 +24,7 @@ import { unpackGameAssets } from "@/game-asset-unpacker";
 import { packGameAssets } from "@/game-asset-packer";
 import { saveFileToDevice } from "@binary-files/web-file-mover";
 import { useTiles } from "@/tile-draw/tile.composable";
+import {useSound} from "@/sound/sound.composable";
 
 export default defineComponent({
   name: 'App',
@@ -33,12 +34,15 @@ export default defineComponent({
     const compressedSize = ref(0);
     const { palettes } = usePalettes();
     const { tiles } = useTiles();
+    const { songs } = useSound();
+
 
     watch(palettes, updateCompressedAssetSize, { deep: true });
     watch(tiles, updateCompressedAssetSize, { deep: true });
+    watch(songs, updateCompressedAssetSize, { deep: true });
 
     async function updateCompressedAssetSize() {
-      const bytes = packGameAssets(palettes.value, tiles.value);
+      const bytes = packGameAssets(palettes.value, tiles.value, songs.value);
       compressedSize.value = await getCompressedSize(bytes);
     }
 
@@ -49,7 +53,7 @@ export default defineComponent({
         binary: true,
         compression: 'DEFLATE',
       })
-          .generateAsync({type: 'uint8array'});
+        .generateAsync({type: 'uint8array'});
 
       return file.length;
     }
@@ -74,15 +78,15 @@ export default defineComponent({
 
         fileReader.onerror = () => {
           fileReader.abort();
-          reject(new DOMException('Error parsing file'))
-        }
+          reject(new DOMException('Error parsing file'));
+        };
 
         fileReader.readAsArrayBuffer(file);
       });
     }
 
     function saveAssets() {
-      const assetBuffer = packGameAssets(palettes.value, tiles.value);
+      const assetBuffer = packGameAssets(palettes.value, tiles.value, songs.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
 
@@ -91,8 +95,8 @@ export default defineComponent({
       compressedSize,
       loadAssets,
       saveAssets,
-    }
-  }
+    };
+  },
 });
 </script>
 
