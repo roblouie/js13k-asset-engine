@@ -148,7 +148,7 @@ export default defineComponent({
       if (!selectedNotePositions.value) {
         return false;
       }
-      return !!selectedNotePositions.value.find(position => {
+      return selectedNotePositions.value.some(position => {
         return position.key.frequency === key.frequency && position.startPosition === gridPosition;
       });
     }
