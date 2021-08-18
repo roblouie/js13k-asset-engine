@@ -26,6 +26,17 @@
         <input v-model="tool" type="radio" name="tool" value="select"/>
       </label>
 
+      <div>
+        <label>
+          Flip X
+          <input v-model="isFlippedX" type="checkbox"/>
+        </label>
+        <label>
+          Flip Y
+          <input v-model="isFlippedY" type="checkbox"/>
+        </label>
+      </div>
+
       <div
           class="tile"
           v-for="(sprite, spriteIndex) in sprites"
@@ -105,6 +116,8 @@ export default defineComponent({
     const selectedSpriteTile = ref(0);
     const canvasElement = ref<HTMLCanvasElement | null>(null);
     let canvasContext: CanvasRenderingContext2D;
+    const isFlippedX = ref(false);
+    const isFlippedY = ref(false);
 
     onMounted(() => {
       if (canvasElement.value) {
@@ -114,9 +127,16 @@ export default defineComponent({
     });
 
     const spriteDimensions = computed(() => {
+      if (sprites.value.length === 0) {
+        return {
+          width: 0,
+          height: 0,
+        };
+      }
+
       return {
-        width: tileSize * spriteRatio.value.width,
-        height: tileSize * spriteRatio.value.height,
+        width: sprites.value[selectedSprite.value].size.width * tileSize,
+        height: sprites.value[selectedSprite.value].size.height * tileSize,
       };
     });
 
@@ -133,7 +153,7 @@ export default defineComponent({
       const sprite = sprites.value[selectedSprite.value];
 
        if (tool.value === 'place') {
-         sprite.spriteTiles[tilePosition] = new SpriteTile(false, false, selectedTileIndex.value);
+         sprite.spriteTiles[tilePosition] = new SpriteTile(isFlippedX.value, isFlippedY.value, selectedTileIndex.value);
          selectedSpriteTile.value = tilePosition;
          drawSpriteToCanvas(sprite);
        } else {
@@ -143,26 +163,43 @@ export default defineComponent({
 
     function selectSprite(spriteIndex: number) {
       selectedSprite.value = spriteIndex;
+
+      // This is lame but waits until the canvas resizes to the new sprite before drawing
+      setTimeout(() => {
+        drawSpriteToCanvas(sprites.value[spriteIndex]);
+      }, 50);
     }
 
     function drawSpriteToCanvas(sprite: Sprite) {
-      // if (!canvasContext || !sprites.value || sprites.value.length === 0) {
-      //   return;
-      // }
-      //
-      // const sprite = sprites.value[selectedSprite.value];
-
       if (!canvasContext || !sprite) {
         return;
       }
 
+      sprite.spriteTiles.forEach((spriteTile, index) => {
+        const tile = tiles.value[spriteTile.tileNumber];
+        const palette = palettes.value[sprite.paletteNumber];
 
-      const tile = tiles.value[sprite.spriteTiles[0].tileNumber];
-      const palette = palettes.value[selectedPaletteIndex.value];
+        let imageData = tileToImageData(tile, palette);
+        if (spriteTile.isFlippedX) {
+          imageData = flipImageDataHorizontally(imageData);
+        }
+        if (spriteTile.isFlippedY) {
+          imageData = flipImageDataVertically(imageData);
+        }
 
-      const imageData = tileToImageData(tile, palette);
-      const flipped = flipImageDataVertically(imageData);
-      canvasContext.putImageData(flipped, 0, 0);
+        if (index === 0) {
+          canvasContext.putImageData(imageData, 0, 0);
+        } else if (index === 1 && sprite.size.width === 1) {
+          canvasContext.putImageData(imageData, 0, tileSize);
+        } else if (index === 1 && sprite.size.width === 2) {
+          canvasContext.putImageData(imageData, tileSize, 0);
+        } else if (index === 2) {
+          canvasContext.putImageData(imageData, 0, tileSize);
+        } else if (index === 3) {
+          canvasContext.putImageData(imageData, tileSize, tileSize);
+        }
+
+      });
     }
 
     function addSprite() {
@@ -241,6 +278,9 @@ export default defineComponent({
       selectedSprite,
       selectSprite,
       canvasElement,
+      isFlippedX,
+      isFlippedY,
+      tileSize,
     };
   },
 });
