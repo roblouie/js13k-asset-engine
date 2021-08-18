@@ -1,4 +1,5 @@
 <template>
+  <div>
   <section
       v-for="(palette, paletteIndex) in palettes"
       :key="paletteIndex"
@@ -48,6 +49,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -62,7 +64,7 @@ export default defineComponent({
     palettes: {
       required: true,
       type: Array,
-    }
+    },
   },
   setup(props: any) {
     const selectedPaletteIndex = ref(0);
@@ -94,7 +96,12 @@ export default defineComponent({
     }
 
     function addTile() {
-      tiles.value.push(new Array(tileSize * tileSize).fill(0));
+      // Limit to 64 tiles so that when used in sprites one bit can be used for flip X and one for flip Y
+      if (tiles.value.length < 64) {
+        tiles.value.push(new Array(tileSize * tileSize).fill(0));
+      } else {
+        alert('Limited to 64 tiles');
+      }
     }
 
     function selectTile(index: number) {
@@ -145,9 +152,9 @@ export default defineComponent({
       addTile,
       tiles,
       selectTile,
-      selectedTileIndex
-    }
-  }
+      selectedTileIndex,
+    };
+  },
 });
 </script>
 
@@ -182,6 +189,14 @@ section.selected {
 canvas {
   border: 1px solid black;
   image-rendering: pixelated;
+  background-image:
+      linear-gradient(45deg, rgb(200, 200, 200) 25%, transparent 25%),
+      linear-gradient(-45deg, rgb(200, 200, 200) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgb(200, 200, 200) 75%),
+      linear-gradient(-45deg, transparent 75%, rgb(200, 200, 200) 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+  background-color: rgb(231, 231, 231);
 }
 
 .draw-wrapper {

@@ -8,7 +8,8 @@
 
   <menu>
     <router-link to="/">Home</router-link>
-    <router-link to="/graphics">Grapics</router-link>
+    <router-link to="/tile-draw">Tile Draw</router-link>
+    <router-link to="/sprite-maker">Sprite Maker</router-link>
     <router-link to="/music">Music</router-link>
   </menu>
 
@@ -24,7 +25,8 @@ import { unpackGameAssets } from "@/game-asset-unpacker";
 import { packGameAssets } from "@/game-asset-packer";
 import { saveFileToDevice } from "@binary-files/web-file-mover";
 import { useTiles } from "@/tile-draw/tile.composable";
-import {useSound} from "@/sound/sound.composable";
+import { useSprites } from "@/sprite-maker/sprite.composable";
+import { useSound } from "@/sound/sound.composable";
 
 export default defineComponent({
   name: 'App',
@@ -34,15 +36,16 @@ export default defineComponent({
     const compressedSize = ref(0);
     const { palettes } = usePalettes();
     const { tiles } = useTiles();
+    const { sprites } = useSprites();
     const { songs } = useSound();
-
 
     watch(palettes, updateCompressedAssetSize, { deep: true });
     watch(tiles, updateCompressedAssetSize, { deep: true });
+    watch(sprites, updateCompressedAssetSize, { deep: true });
     watch(songs, updateCompressedAssetSize, { deep: true });
 
     async function updateCompressedAssetSize() {
-      const bytes = packGameAssets(palettes.value, tiles.value, songs.value);
+      const bytes = packGameAssets(palettes.value, tiles.value, sprites.value, songs.value);
       compressedSize.value = await getCompressedSize(bytes);
     }
 
@@ -64,9 +67,10 @@ export default defineComponent({
       if (fileElement.files && fileElement.files[0]) {
         const assetArrayBuffer = await fileToArrayBuffer(fileElement.files[0]);
         compressedSize.value = await getCompressedSize(assetArrayBuffer);
-        const { paletteAsset, tileAsset } = unpackGameAssets(assetArrayBuffer);
+        const { paletteAsset, tileAsset, spriteAsset } = unpackGameAssets(assetArrayBuffer);
         palettes.value = paletteAsset.data;
         tiles.value = tileAsset.data;
+        sprites.value = spriteAsset.data;
       }
     }
 
@@ -86,7 +90,7 @@ export default defineComponent({
     }
 
     function saveAssets() {
-      const assetBuffer = packGameAssets(palettes.value, tiles.value, songs.value);
+      const assetBuffer = packGameAssets(palettes.value, tiles.value, sprites.value, songs.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
 
