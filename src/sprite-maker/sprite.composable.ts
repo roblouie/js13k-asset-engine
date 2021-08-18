@@ -18,9 +18,9 @@ function spritesToBytes(sprites: Sprite[]): ArrayBuffer {
     spriteByteSize++; // The sprite itself takes up one byte to store the palette number and size in tiles
 
     // Then each tile takes one byte, six bits for the tile number, one for flipped x, one for flipped y
-    if (sprite.size.width === 1 && sprite.size.height === 1) {
+    if (sprite.width === 1 && sprite.height === 1) {
       spriteByteSize++;
-    } else if (sprite.size.width === 2 && sprite.size.height === 2) {
+    } else if (sprite.width === 2 && sprite.height === 2) {
       spriteByteSize += 4;
     } else {
       spriteByteSize += 2;
@@ -35,13 +35,13 @@ function spritesToBytes(sprites: Sprite[]): ArrayBuffer {
 
   sprites.forEach(sprite => {
     let sizeBits = 0;
-    if (sprite.size.width === 1 && sprite.size.height === 1) {
+    if (sprite.width === 1 && sprite.height === 1) {
       sizeBits = 0;
-    } else if (sprite.size.width === 1 && sprite.size.height === 2) {
+    } else if (sprite.width === 1 && sprite.height === 2) {
       sizeBits = 1;
-    } else if (sprite.size.width === 2 && sprite.size.height === 1) {
+    } else if (sprite.width === 2 && sprite.height === 1) {
       sizeBits = 2;
-    } else if (sprite.size.width === 2 && sprite.size.height === 1) {
+    } else if (sprite.width === 2 && sprite.height === 2) {
       sizeBits = 3;
     }
 

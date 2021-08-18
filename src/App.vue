@@ -39,9 +39,9 @@ export default defineComponent({
     const { sprites } = useSprites();
     const { songs } = useSound();
 
-
     watch(palettes, updateCompressedAssetSize, { deep: true });
     watch(tiles, updateCompressedAssetSize, { deep: true });
+    watch(sprites, updateCompressedAssetSize, { deep: true });
     watch(songs, updateCompressedAssetSize, { deep: true });
 
     async function updateCompressedAssetSize() {
@@ -67,9 +67,10 @@ export default defineComponent({
       if (fileElement.files && fileElement.files[0]) {
         const assetArrayBuffer = await fileToArrayBuffer(fileElement.files[0]);
         compressedSize.value = await getCompressedSize(assetArrayBuffer);
-        const { paletteAsset, tileAsset } = unpackGameAssets(assetArrayBuffer);
+        const { paletteAsset, tileAsset, spriteAsset } = unpackGameAssets(assetArrayBuffer);
         palettes.value = paletteAsset.data;
         tiles.value = tileAsset.data;
+        sprites.value = spriteAsset.data;
       }
     }
 

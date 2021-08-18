@@ -1,3 +1,6 @@
+import { Sprite } from "@/sprite-maker/sprite.model";
+import { SpriteTile } from "@/sprite-maker/sprite-tile.model";
+
 interface UnpackedAsset {
   data: any;
   finalByteIndex: number;
@@ -6,8 +9,8 @@ interface UnpackedAsset {
 export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const paletteAsset = bytesToPalettes(arrayBuffer, 0);
   const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex);
-  const songsAsset = bytesToSongs(arrayBuffer, tileAsset.finalByteIndex);
   const spriteAsset = bytesToSprites(arrayBuffer, tileAsset.finalByteIndex);
+  const songsAsset = bytesToSongs(arrayBuffer, spriteAsset.finalByteIndex);
 
   return {
     paletteAsset,
@@ -67,8 +70,45 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
   };
 }
 
-function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number) {
-  console.log(arrayBuffer);
+function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
+  if (startingOffset >= arrayBuffer.byteLength) {
+    return {
+      data: [],
+      finalByteIndex: startingOffset,
+    };
+  }
+  const dataView = new DataView(arrayBuffer, startingOffset);
+  const numberOfSprites = dataView.getUint8(0);
+
+  let spritesParsed = 0;
+  let bytePosition = 1;
+  const sprites: Sprite[] = [];
+
+  while (spritesParsed < numberOfSprites) {
+    const spriteHeaderByte = dataView.getUint8(bytePosition);
+    const paletteNumber = spriteHeaderByte & 63;
+    const size = spriteHeaderByte >> 6;
+    bytePosition++;
+
+    const sprite = new Sprite(paletteNumber, size);
+
+    for (let i = 0; i < sprite.spriteTiles.length; i++) {
+      const tileByte = dataView.getUint8(bytePosition);
+      const paletteNumber = tileByte & 63;
+      const isFlippedX = ((tileByte >> 6) & 1) === 1;
+      const isFlippedY = (tileByte >> 7) === 1;
+      sprite.spriteTiles[i] = new SpriteTile(isFlippedX, isFlippedY, paletteNumber);
+      bytePosition++;
+    }
+
+    sprites.push(sprite);
+    spritesParsed++;
+  }
+
+  return {
+    data: sprites,
+    finalByteIndex: startingOffset + bytePosition,
+  };
 }
 
 function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {

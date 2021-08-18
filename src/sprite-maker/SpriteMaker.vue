@@ -50,10 +50,10 @@
 
     <div>
       <select v-model="spriteRatio">
-        <option :value="{width: 1, height: 1 }">1x1</option>
-        <option :value="{ width: 1, height: 2 }">1x2</option>
-        <option :value="{ width: 2, height: 1 }">2x1</option>
-        <option :value="{ width: 2, height: 2 }">2x2</option>
+        <option :value="{ width: 1, height: 1, index: 0 }">1x1</option>
+        <option :value="{ width: 1, height: 2, index: 1 }">1x2</option>
+        <option :value="{ width: 2, height: 1, index: 2 }">2x1</option>
+        <option :value="{ width: 2, height: 2, index: 3 }">2x2</option>
       </select>
 
       <section
@@ -108,7 +108,7 @@ export default defineComponent({
     const { sprites } = useSprites();
     const selectedPaletteIndex = ref(0);
     const selectedTileIndex = ref(0);
-    const spriteRatio = ref({ width: 1, height: 1 });
+    const spriteRatio = ref({ width: 1, height: 1, index: 0 });
     const tilePositionInSprite = ref(0);
     const spriteScaleMultiplier = 10;
     const tool = ref<'place' | 'select'>('place');
@@ -135,8 +135,8 @@ export default defineComponent({
       }
 
       return {
-        width: sprites.value[selectedSprite.value].size.width * tileSize,
-        height: sprites.value[selectedSprite.value].size.height * tileSize,
+        width: sprites.value[selectedSprite.value].width * tileSize,
+        height: sprites.value[selectedSprite.value].height * tileSize,
       };
     });
 
@@ -189,9 +189,9 @@ export default defineComponent({
 
         if (index === 0) {
           canvasContext.putImageData(imageData, 0, 0);
-        } else if (index === 1 && sprite.size.width === 1) {
+        } else if (index === 1 && sprite.width === 1) {
           canvasContext.putImageData(imageData, 0, tileSize);
-        } else if (index === 1 && sprite.size.width === 2) {
+        } else if (index === 1 && sprite.width === 2) {
           canvasContext.putImageData(imageData, tileSize, 0);
         } else if (index === 2) {
           canvasContext.putImageData(imageData, 0, tileSize);
@@ -203,7 +203,7 @@ export default defineComponent({
     }
 
     function addSprite() {
-      const sprite = new Sprite(selectedPaletteIndex.value, spriteRatio.value.width, spriteRatio.value.height);
+      const sprite = new Sprite(selectedPaletteIndex.value, spriteRatio.value.index);
       sprites.value.push(sprite);
     }
 
@@ -214,7 +214,7 @@ export default defineComponent({
       const tileX = Math.floor(pixelX / tileSize);
       const tileY = Math.floor(pixelY / tileSize);
 
-      return tileY * spriteRatio.value.width + tileX;
+      return tileY * sprites.value[selectedSprite.value].width + tileX;
     }
 
     function flipImageDataHorizontally(imageData: ImageData): ImageData {
