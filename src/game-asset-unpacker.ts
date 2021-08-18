@@ -6,11 +6,14 @@ interface UnpackedAsset {
 export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const paletteAsset = bytesToPalettes(arrayBuffer, 0);
   const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex);
+  const songsAsset = bytesToSongs(arrayBuffer, tileAsset.finalByteIndex);
   const spriteAsset = bytesToSprites(arrayBuffer, tileAsset.finalByteIndex);
 
   return {
     paletteAsset,
     tileAsset,
+    spriteAsset,
+    songsAsset,
   };
 }
 
@@ -66,6 +69,11 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
 
 function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number) {
   console.log(arrayBuffer);
+}
+
+function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
+  // TODO: logic for load sound assets
+  return {} as UnpackedAsset;
 }
 
 function chunkArrayInGroups(array: any[], chunkSize: number): string[][] {
