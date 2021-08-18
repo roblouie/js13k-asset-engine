@@ -18,11 +18,13 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-use-before-define': ["error", { "functions": false, "classes": true }],
     '@typescript-eslint/no-empty-function': 'warn',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     'comma-dangle': ['warn', 'always-multiline'],
-    'comma': ['warn', 'single'],
     'semi': 'warn',
     'indent': ['warn', 2],
     'space-before-function-paren': ['warn', {"anonymous": "never", "named": "never"}],
+    'quotes': ['warn', 'single'],
+    'object-curly-spacing': ["warn", "always"]
   },
   overrides: [
     {
