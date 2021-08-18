@@ -115,7 +115,6 @@ function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number): Unpac
 }
 
 function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
-  // TODO: logic for load sound assets
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfSongs = dataView.getUint8(0);
 
