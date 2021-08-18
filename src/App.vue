@@ -25,6 +25,7 @@ import { unpackGameAssets } from "@/game-asset-unpacker";
 import { packGameAssets } from "@/game-asset-packer";
 import { saveFileToDevice } from "@binary-files/web-file-mover";
 import { useTiles } from "@/tile-draw/tile.composable";
+import { useSprites } from "@/sprite-maker/sprite.composable";
 
 export default defineComponent({
   name: 'App',
@@ -34,12 +35,13 @@ export default defineComponent({
     const compressedSize = ref(0);
     const { palettes } = usePalettes();
     const { tiles } = useTiles();
+    const { sprites } = useSprites();
 
     watch(palettes, updateCompressedAssetSize, { deep: true });
     watch(tiles, updateCompressedAssetSize, { deep: true });
 
     async function updateCompressedAssetSize() {
-      const bytes = packGameAssets(palettes.value, tiles.value);
+      const bytes = packGameAssets(palettes.value, tiles.value, sprites.value);
       compressedSize.value = await getCompressedSize(bytes);
     }
 
@@ -83,7 +85,7 @@ export default defineComponent({
     }
 
     function saveAssets() {
-      const assetBuffer = packGameAssets(palettes.value, tiles.value);
+      const assetBuffer = packGameAssets(palettes.value, tiles.value, sprites.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
 

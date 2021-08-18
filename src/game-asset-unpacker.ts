@@ -6,6 +6,8 @@ interface UnpackedAsset {
 export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const paletteAsset = bytesToPalettes(arrayBuffer, 0);
   const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex);
+  const spriteAsset = bytesToSprites(arrayBuffer, tileAsset.finalByteIndex);
+
   return {
     paletteAsset,
     tileAsset,
@@ -60,6 +62,10 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
     data: tileData,
     finalByteIndex: startingOffset + totalTilesByteSize,
   };
+}
+
+function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number) {
+  console.log(arrayBuffer);
 }
 
 function chunkArrayInGroups(array: any[], chunkSize: number): string[][] {
