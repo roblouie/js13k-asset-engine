@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { Song } from '@/sound/song.model';
 import { NotePosition } from '@/sound/note-position.model';
 import { Key } from '@/sound/key.model';
+import { Track } from '@/sound/track.model';
 
 const songs = ref<Song[]>([]);
 
@@ -21,10 +22,12 @@ function songsToBytes(songs: Song[]): ArrayBuffer {
     return accumulator + songArray.byteLength;
   }, 0);
 
-  const combinedBytes = new Uint8Array(byteLength);
+  const combinedBytes = new Uint8Array(byteLength + 1);
+  const numberOfSongsBytes = new Uint8Array([songs.length]);
+  combinedBytes.set(numberOfSongsBytes);
   arrayBuffers.forEach((songBuffer: ArrayBuffer) => {
     const songBytes = new Uint8Array(songBuffer);
-    combinedBytes.set(songBytes);
+    combinedBytes.set(songBytes, 1);
   });
   return combinedBytes;
 }
@@ -35,14 +38,14 @@ function convertSongToArrayBuffer(song: Song): ArrayBuffer {
   arrayToBufferize.push(song.tempo); //tempo
   arrayToBufferize.push(song.tracks.length); //number of tracks
 
-  song.tracks.forEach((notePositions: NotePosition[]) =>{
-    const keysUsed = getKeysUsed(notePositions);
+  song.tracks.forEach((track: Track) =>{
+    const keysUsed = getKeysUsed(track.notes);
     const usedFrequencies = getUsedNoteFrequencies(keysUsed);
     const splitFrequencies = convertFrequenciesTo8BitInt(usedFrequencies);
     arrayToBufferize.push(usedFrequencies.length); // number of pitches
     arrayToBufferize.push(...splitFrequencies); // and both bytes representing each one
     // map channels through get number of instructions callback
-    const noteInstructions = getNoteInstructions(notePositions);
+    const noteInstructions = getNoteInstructions(track.notes);
     const noteBytes = convertNoteInstructionsTo8BitInt(noteInstructions);
     arrayToBufferize.push(noteBytes.length); // length of each instruction set
     arrayToBufferize.push(...noteBytes); // ...and corresponding instructions in bytes
@@ -143,5 +146,7 @@ function convertFrequenciesTo8BitInt(frequencies: number[]) {
     bytesToReturn.push(firstByte);
     bytesToReturn.push(secondByte);
   });
+  debugger;
+
   return bytesToReturn;
 }

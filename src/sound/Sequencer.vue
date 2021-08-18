@@ -32,9 +32,9 @@
 </template>
 
 <script  lang="ts">
-import {defineComponent, ref, PropType, computed} from 'vue';
-import {Key} from "./key.model";
-import {NotePosition} from "./note-position.model";
+import { defineComponent, ref, PropType, computed } from 'vue';
+import { Key } from './key.model';
+import { NotePosition } from './note-position.model';
 
 export default defineComponent({
   emits: ['update:modelValue'],
@@ -154,6 +154,9 @@ export default defineComponent({
     }
 
     function expandNote(notePosition: NotePosition) {
+      if (!notePosition.duration || !notePosition.style?.width) {
+        return;
+      }
       const { width } = notePosition.style;
       const widthValue = parseInt(width.split('p')[0], 10);
       notePosition.duration += 1;
@@ -163,6 +166,9 @@ export default defineComponent({
     function contractNote(notePosition: NotePosition) {
       if (notePosition.duration === 1) {
         toggleGridSquare(notePosition.key, notePosition.startPosition);
+        return;
+      }
+      if (!notePosition.duration || !notePosition.style?.width) {
         return;
       }
       const { width } = notePosition.style;

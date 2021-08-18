@@ -1,5 +1,8 @@
-import { Sprite } from "@/sprite-maker/sprite.model";
-import { SpriteTile } from "@/sprite-maker/sprite-tile.model";
+import { Sprite } from '@/sprite-maker/sprite.model';
+import { SpriteTile } from '@/sprite-maker/sprite-tile.model';
+import { Song } from '@/sound/song.model';
+import { Track } from '@/sound/track.model';
+import { NotePosition } from '@/sound/note-position.model';
 
 interface UnpackedAsset {
   data: any;
@@ -113,7 +116,73 @@ function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number): Unpac
 
 function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
   // TODO: logic for load sound assets
-  return {} as UnpackedAsset;
+  const dataView = new DataView(arrayBuffer, startingOffset);
+  const numberOfSongs = dataView.getUint8(0);
+
+  let bytePosition = 1;
+  let songsParsed = 0;
+  const songs: Song[] = [];
+
+  while (songsParsed < numberOfSongs) {
+    const tempo = dataView.getUint8(bytePosition);
+    bytePosition ++;
+    const numberOfTracks = dataView.getUint8(bytePosition);
+    bytePosition ++;
+
+    const tracks: Track[] = [];
+    let tracksParsed = 0;
+    while (tracksParsed < numberOfTracks) {
+      const numberOfPitches = dataView.getUint8(bytePosition);
+      bytePosition ++;
+
+      let pitchesParsed = 0;
+      const pitches = [];
+      while (pitchesParsed < numberOfPitches) {
+        const firstHalf = dataView.getUint8(bytePosition);
+        const secondHalf = dataView.getUint8(bytePosition + 1);
+        pitches.push((firstHalf << 8) + secondHalf);
+        pitchesParsed ++;
+        bytePosition += 2;
+      }
+
+      const numberOfNotes = dataView.getUint8(bytePosition);
+      bytePosition ++;
+
+      let notesParsed = 0;
+      const notes: NotePosition[] = [];
+      let currentStepPosition = 0;
+      while (notesParsed < numberOfNotes) {
+        const combinedInstruction = dataView.getUint8(bytePosition);
+        const pitchIndex = combinedInstruction >> 4;
+        const noteLength = combinedInstruction & 0b1111;
+
+        if (pitchIndex !== 0) {
+          const noteFrequency = pitches[pitchIndex];
+
+          notes.push({
+            key: {
+              frequency: noteFrequency,
+            },
+            startPosition: currentStepPosition,
+            duration: noteLength,
+          });
+        }
+        currentStepPosition += noteLength;
+        bytePosition ++;
+        notesParsed ++;
+      }
+
+      tracks.push({ trackId: tracksParsed, notes: notes });
+      tracksParsed ++;
+    }
+    songs.push(new Song(tempo, tracks));
+    songsParsed++;
+  }
+
+  return {
+    data: songs,
+    finalByteIndex: startingOffset + bytePosition,
+  };
 }
 
 function chunkArrayInGroups(array: any[], chunkSize: number): string[][] {

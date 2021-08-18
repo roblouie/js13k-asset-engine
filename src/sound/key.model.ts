@@ -1,5 +1,5 @@
 export interface Key {
   frequency: number;
-  isSharp: boolean;
-  name: string;
+  isSharp?: boolean;
+  name?: string;
 }

@@ -6,11 +6,11 @@
 
 <script>
 import { defineComponent } from 'vue';
-import SoundCreate from "@/sound/SoundCreate";
+import SoundCreate from '@/sound/SongMaker';
 
 export default defineComponent({
   name: 'music',
-  components: {SoundCreate}
+  components: { SoundCreate },
 });
 </script>
 
