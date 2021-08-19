@@ -1,7 +1,6 @@
 import { ref } from 'vue';
 import { Song } from '@/sound/song.model';
 import { NotePosition } from '@/sound/note-position.model';
-import { Key } from '@/sound/key.model';
 import { Track } from '@/sound/track.model';
 
 const songs = ref<Song[]>([]);
@@ -10,7 +9,7 @@ export function useSound() {
   return {
     songs,
     songsToBytes,
-    getKeysUsed,
+    getUsedNoteFrequencies,
   };
 }
 
@@ -38,9 +37,8 @@ function convertSongToArrayBuffer(song: Song): ArrayBuffer {
   arrayToBufferize.push(song.tempo); //tempo
   arrayToBufferize.push(song.tracks.length); //number of tracks
 
-  song.tracks.forEach((track: Track) =>{
-    const keysUsed = getKeysUsed(track.notes);
-    const usedFrequencies = getUsedNoteFrequencies(keysUsed);
+  song.tracks.forEach((track: Track) => {
+    const usedFrequencies = getUsedNoteFrequencies(track.notes);
     const splitFrequencies = convertFrequenciesTo8BitInt(usedFrequencies);
     arrayToBufferize.push(usedFrequencies.length); // number of pitches
     arrayToBufferize.push(...splitFrequencies); // and both bytes representing each one
@@ -60,19 +58,15 @@ function convertSongToArrayBuffer(song: Song): ArrayBuffer {
 }
 
 
-function getKeysUsed(notePositions: NotePosition[]) {
-  const allKeys = notePositions.map(notePosition => notePosition.key);
-  return [...new Set(allKeys)];
-}
-
-function getUsedNoteFrequencies(keysUsed: Key[]): number[] {
-  if (keysUsed.length > 15) {
+function getUsedNoteFrequencies(notePositions: NotePosition[]): number[] {
+  const allFrequencies = notePositions.map(position => position.frequency);
+  const uniqueFrequencies = [...new Set(allFrequencies)];
+  // rest is always first in array
+  uniqueFrequencies.unshift(0);
+  if (uniqueFrequencies.length > 15) {
     alert('you done effed up son');
   }
-  const frequencies = keysUsed.map(key => key.frequency);
-  // rest is always first in array
-  frequencies.unshift(0);
-  return frequencies;
+  return uniqueFrequencies;
 }
 
 
@@ -97,12 +91,11 @@ function getNoteInstructions(notePositions: NotePosition[]) {
     noteInstructions.push(remainingRestLength);
   }
   /// source of truth need updated for multiple channels on next argument
-  const  keysUsed = getKeysUsed(notePositions);
-  const usedFrequencies = getUsedNoteFrequencies(keysUsed);
+  const usedFrequencies = getUsedNoteFrequencies(notePositions);
 
   sortedNotes.forEach((note, noteIndex) => {
     // add the next note
-    const frequencyIndex = usedFrequencies.findIndex(frequency => frequency === note.key.frequency);
+    const frequencyIndex = usedFrequencies.findIndex(frequency => frequency === note.frequency);
     noteInstructions.push(frequencyIndex);
     noteInstructions.push(note.duration);
     // this is the last one, no rest to follow
@@ -146,7 +139,6 @@ function convertFrequenciesTo8BitInt(frequencies: number[]) {
     bytesToReturn.push(firstByte);
     bytesToReturn.push(secondByte);
   });
-  debugger;
 
   return bytesToReturn;
 }

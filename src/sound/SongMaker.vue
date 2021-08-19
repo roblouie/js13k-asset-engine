@@ -1,7 +1,7 @@
 <template>
   <div>
     <Sequencer v-model="selectedTrackNotePositions" />
-    <p>{{ keysUsed?.length }} notes used</p>
+    <p>{{ frequenciesUsed?.length }} notes used</p>
     <span>current track</span>
     <select v-model="selectedTrackNumber">
       <option v-for="(track, index) in songs[0].tracks" :key="index" :value="index">{{ index + 1 }}</option>
@@ -21,7 +21,7 @@ export default defineComponent({
     Sequencer,
   },
   setup() {
-    const { songs, getKeysUsed } = useSound();
+    const { songs, getUsedNoteFrequencies } = useSound();
     if (!songs.value.length) {
       const track = { trackId: 0, notes: [] };
       songs.value.push(new Song(145, [track]));
@@ -33,11 +33,11 @@ export default defineComponent({
       set: (value) => songs.value[0].tracks[selectedTrackNumber.value].notes = value,
     });
 
-    const keysUsed = computed(() => {
+    const frequenciesUsed = computed(() => {
       if (!selectedTrackNotePositions.value?.length) {
         return [];
       }
-      return getKeysUsed(selectedTrackNotePositions.value);
+      return getUsedNoteFrequencies(selectedTrackNotePositions.value);
     });
 
     const selectedSongsNumber = ref(0);
@@ -55,7 +55,7 @@ export default defineComponent({
       selectedTrackNumber,
       selectedTrackNotePositions,
       addTrack,
-      keysUsed,
+      frequenciesUsed,
     };
   },
 });

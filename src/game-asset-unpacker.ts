@@ -159,9 +159,7 @@ function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
           const noteFrequency = pitches[pitchIndex];
 
           notes.push({
-            key: {
-              frequency: noteFrequency,
-            },
+            frequency: noteFrequency,
             startPosition: currentStepPosition,
             duration: noteLength,
           });
