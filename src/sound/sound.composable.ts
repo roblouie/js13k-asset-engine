@@ -16,7 +16,6 @@ export function useSound() {
 
 function songsToBytes(songs: Song[]): ArrayBuffer {
   const arrayBuffers = songs.map(convertSongToArrayBuffer);
-  /// this needs de-serialized
   const byteLength = arrayBuffers.reduce((accumulator, songArray) => {
     return accumulator + songArray.byteLength;
   }, 0);
@@ -42,10 +41,9 @@ function convertSongToArrayBuffer(song: Song): ArrayBuffer {
     const splitFrequencies = convertFrequenciesTo8BitInt(usedFrequencies);
     arrayToBufferize.push(usedFrequencies.length); // number of pitches
     arrayToBufferize.push(...splitFrequencies); // and both bytes representing each one
-    // map channels through get number of instructions callback
-    const noteInstructions = getNoteInstructions(track.notes);
-    const noteBytes = convertNoteInstructionsTo8BitInt(noteInstructions);
-    arrayToBufferize.push(noteBytes.length); // length of each instruction set
+    const noteInstructions = getNoteInstructions(track.notes); // get note instructions
+    const noteBytes = convertNoteInstructionsTo8BitInt(noteInstructions); // convert them to bytes
+    arrayToBufferize.push(noteBytes.length); // add length of the instruction set
     arrayToBufferize.push(...noteBytes); // ...and corresponding instructions in bytes
   });
 
@@ -90,7 +88,6 @@ function getNoteInstructions(notePositions: NotePosition[]) {
     noteInstructions.push(0);
     noteInstructions.push(remainingRestLength);
   }
-  /// source of truth need updated for multiple channels on next argument
   const usedFrequencies = getUsedNoteFrequencies(notePositions);
 
   sortedNotes.forEach((note, noteIndex) => {
