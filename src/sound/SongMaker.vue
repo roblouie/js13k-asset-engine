@@ -1,12 +1,28 @@
 <template>
   <div>
-    <Sequencer v-model="selectedTrackNotePositions" />
+    <Sequencer v-model="selectedTrackNotePositions"/>
     <p>{{ frequenciesUsed?.length }} notes used</p>
-    <span>current track</span>
-    <select v-model="selectedTrackNumber">
-      <option v-for="(track, index) in songs[0].tracks" :key="index" :value="index">{{ index + 1 }}</option>
-    </select>
-    <button @click="addTrack">Add track</button>
+    <section class="track-info">
+      <span>current track</span>
+      <select v-model="selectedTrackNumber">
+        <option v-for="(track, index) in selectedSong.tracks" :key="index" :value="index">{{ index + 1 }}</option>
+      </select>
+      <button @click="addTrack">Add track</button>
+      <br>
+      <button v-if="!isSongPlaying" @click="onSongStart">Start</button>
+      <button v-if="isSongPlaying" @click="stopSong">Stop</button>
+    </section>
+
+    <section class="song-info">
+      <span>song tempo</span>
+      <input v-model="selectedSong.tempo"/>
+      <span>current song</span>
+      <select v-model="selectedSongNumber">
+        <option v-for="(song, index) in songs" :key="index" :value="index">{{ index + 1 }}</option>
+      </select>
+      <button @click="addSong">Add song</button>
+    </section>
+
   </div>
 </template>
 
@@ -15,6 +31,7 @@ import { computed, defineComponent, ref } from 'vue';
 import Sequencer from '@/sound/Sequencer.vue';
 import { useSound } from '@/sound/sound.composable';
 import { Song } from '@/sound/song.model';
+import { isSongPlaying, startSong, stopSong } from '@/sound/spu';
 
 export default defineComponent({
   components: {
@@ -23,13 +40,17 @@ export default defineComponent({
   setup() {
     const { songs, getUsedNoteFrequencies } = useSound();
     if (!songs.value.length) {
-      const track = { trackId: 0, notes: [] };
-      songs.value.push(new Song(145, [track]));
+      addSong();
     }
+
+    const selectedSongNumber = ref(0);
+    const selectedSong = computed(() => {
+      return songs.value[selectedSongNumber.value] || [];
+    });
 
     const selectedTrackNumber = ref(0);
     const selectedTrackNotePositions = computed({
-      get: () => songs.value[0].tracks[selectedTrackNumber.value].notes,
+      get: () => selectedSong.value.tracks[selectedTrackNumber.value].notes || [],
       set: (value) => songs.value[0].tracks[selectedTrackNumber.value].notes = value,
     });
 
@@ -40,22 +61,37 @@ export default defineComponent({
       return getUsedNoteFrequencies(selectedTrackNotePositions.value);
     });
 
-    const selectedSongsNumber = ref(0);
     function addTrack() {
+      const id = selectedSongNumber.value;
       const newTrack = {
-        trackId: songs.value[selectedSongsNumber.value].tracks.length + 1,
+        trackId: songs.value[id].tracks.length + 1,
         notes: [],
       };
-      songs.value[selectedSongsNumber.value].tracks.push(newTrack);
+      songs.value[id].tracks.push(newTrack);
+    }
+
+    function addSong() {
+      const track = { trackId: 0, notes: [] };
+      songs.value.push(new Song(120, [track]));
+    }
+
+    function onSongStart() {
+      startSong(selectedSong.value);
     }
 
 
     return {
+      selectedSongNumber,
+      selectedSong,
       songs,
       selectedTrackNumber,
       selectedTrackNotePositions,
       addTrack,
       frequenciesUsed,
+
+      isSongPlaying,
+      onSongStart,
+      stopSong,
     };
   },
 });
