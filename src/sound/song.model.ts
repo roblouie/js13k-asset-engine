@@ -1,8 +1,11 @@
-import {NotePosition} from "@/sound/note-position.model";
+import { Track } from '@/sound/track.model';
 
-export interface Song {
+export class Song {
   tempo: number;
-  tracks: [
-    NotePosition[]
-  ];
+  tracks: Track[];
+
+  constructor(tempo: number, tracks: Track[]) {
+    this.tempo = tempo;
+    this.tracks = tracks;
+  }
 }

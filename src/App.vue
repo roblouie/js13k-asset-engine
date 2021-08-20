@@ -19,19 +19,18 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue';
-import { usePalettes } from "@/palette-maker/palette.composable";
+import { usePalettes } from '@/palette-maker/palette.composable';
 import JSZip from 'jszip';
-import { unpackGameAssets } from "@/game-asset-unpacker";
-import { packGameAssets } from "@/game-asset-packer";
-import { saveFileToDevice } from "@binary-files/web-file-mover";
-import { useTiles } from "@/tile-draw/tile.composable";
-import { useSprites } from "@/sprite-maker/sprite.composable";
-import { useSound } from "@/sound/sound.composable";
+import { unpackGameAssets } from '@/game-asset-unpacker';
+import { packGameAssets } from '@/game-asset-packer';
+import { saveFileToDevice } from '@binary-files/web-file-mover';
+import { useTiles } from '@/tile-draw/tile.composable';
+import { useSprites } from '@/sprite-maker/sprite.composable';
+import { useSound } from '@/sound/sound.composable';
 
 export default defineComponent({
   name: 'App',
-  components: {
-  },
+  components: {},
   setup() {
     const compressedSize = ref(0);
     const { palettes } = usePalettes();
@@ -56,7 +55,7 @@ export default defineComponent({
         binary: true,
         compression: 'DEFLATE',
       })
-        .generateAsync({type: 'uint8array'});
+        .generateAsync({ type: 'uint8array' });
 
       return file.length;
     }
@@ -67,10 +66,11 @@ export default defineComponent({
       if (fileElement.files && fileElement.files[0]) {
         const assetArrayBuffer = await fileToArrayBuffer(fileElement.files[0]);
         compressedSize.value = await getCompressedSize(assetArrayBuffer);
-        const { paletteAsset, tileAsset, spriteAsset } = unpackGameAssets(assetArrayBuffer);
+        const { paletteAsset, tileAsset, spriteAsset, songsAsset } = unpackGameAssets(assetArrayBuffer);
         palettes.value = paletteAsset.data;
         tiles.value = tileAsset.data;
         sprites.value = spriteAsset.data;
+        songs.value = songsAsset.data;
       }
     }
 

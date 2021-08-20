@@ -1,24 +1,34 @@
 <template>
-  <div class="grid-container" ref="grid">
+  <div class="grid-container" ref="gridElement">
     <div
-      v-for="(key, keyIndex) in allKeys"
-      :key="keyIndex"
-      class="keyboard-row"
+      class="keyboard-container"
+      ref="keyElements"
     >
-      <div class="keyboard-key" :class="{ 'sharp': key.isSharp }"></div>
       <div
-        v-for="gridPosition in 3200"
-        :key="gridPosition - 1"
-        class="grid-square"
-        @click="toggleGridSquare(key, gridPosition - 1, $event.target.getBoundingClientRect())"
-        :class="{'start-square': ((gridPosition) % 16 === 0)}" />
+        v-for="(key, keyIndex) in allKeys"
+        :key="keyIndex"
+        class="keyboard-row"
+      >
+        <div
+          class="keyboard-key"
+          :class="{ 'sharp': key.isSharp }"
+          :id="key.frequency"
+        ></div>
+        <div
+          v-for="gridPosition in 3200"
+          :key="gridPosition - 1"
+          class="grid-square"
+          @click="addNotePosition(key, gridPosition - 1)"
+          :class="[{'start-square': ((gridPosition) % 16 === 0)}, `grid${gridPosition - 1}`]"/>
+      </div>
     </div>
+
     <div
       v-for="(notePosition, noteIndex) in selectedNotePositions"
       :key="noteIndex"
       class="selected-note"
-      @click="toggleGridSquare(notePosition.key, notePosition.startPosition)"
-      :style="notePosition.style">
+      @click="removeNotePosition(notePosition)"
+      :style="getSelectedNotePositionStyle(notePosition)">
       <div
         class="right-border"
         @click.stop="expandNote(notePosition)"
@@ -31,10 +41,10 @@
   </div>
 </template>
 
-<script  lang="ts">
-import {defineComponent, ref, PropType, computed} from 'vue';
-import {Key} from "./key.model";
-import {NotePosition} from "./note-position.model";
+<script lang="ts">
+import { defineComponent, ref, PropType, computed } from 'vue';
+import { Key } from './key.model';
+import { NotePosition } from './note-position.model';
 
 export default defineComponent({
   emits: ['update:modelValue'],
@@ -114,70 +124,84 @@ export default defineComponent({
     }
     allKeys.reverse();
 
-    const grid = ref<HTMLElement | undefined>();
-
-    function toggleGridSquare(key: Key, gridPosition: number, boundingRect?: any) {
-      if (isSquareSelected(key, gridPosition)) {
-        const alreadySelectedIndex = selectedNotePositions.value.findIndex(position => {
-          return position.key.frequency === key.frequency && position.startPosition === gridPosition;
-        });
-        selectedNotePositions.value.splice(alreadySelectedIndex, 1);
-        return;
-      }
-
-      const gridRect = grid.value?.getBoundingClientRect();
-      const xOffset = gridRect?.x  || 0;
-      const yOffset = gridRect?.y || 0;
-
-
+    function addNotePosition(key: Key, gridPosition: number) {
       selectedNotePositions.value.push(
         {
-          key: key,
+          frequency: key.frequency,
           startPosition: gridPosition,
           duration: 1,
-          style: {
-            top: `${Math.round(boundingRect.top - yOffset - 2).toString()}px`,
-            width: '25px',
-            left: `${Math.round(boundingRect.left - xOffset - 2).toString()}.px`,
-          },
         },
       );
     }
 
-    function isSquareSelected(key: Key, gridPosition: number): boolean {
-      if (!selectedNotePositions.value) {
-        return false;
-      }
-      return selectedNotePositions.value.some(position => {
-        return position.key.frequency === key.frequency && position.startPosition === gridPosition;
+    function removeNotePosition(positionToDelete: NotePosition) {
+      const index = selectedNotePositions.value.findIndex(position => {
+        return positionToDelete === position;
       });
+      if (index !== -1) {
+        selectedNotePositions.value.splice(index, 1);
+      }
+    }
+
+    const keyElements = ref<HTMLElement | undefined>();
+    const gridElement = ref<HTMLElement | undefined>();
+
+    function getSelectedNotePositionStyle(notePosition: NotePosition) {
+      if (!keyElements.value?.children || !gridElement.value) {
+        return;
+      }
+      const keyboardRows: Element[] = Array.from(keyElements.value.children);
+      const keyboardRow: Element | undefined = keyboardRows.find((keyRow: Element) => {
+        // somehow ChildNode id is not registered? ¯\_(ツ)_/¯
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        return keyRow?.firstChild?.id === notePosition.frequency.toString();
+      });
+      if (!keyboardRow) {
+        return;
+      }
+      const keyAndGridSquares: Element[] = Array.from(keyboardRow.children);
+      const startingGridSquare: Element | undefined = keyAndGridSquares.find((gridSquare: Element) => {
+        return gridSquare.classList.contains('grid' + notePosition.startPosition.toString());
+      });
+      if (!startingGridSquare) {
+        return;
+      }
+      const gridRect = gridElement.value.getBoundingClientRect();
+      const xOffset = gridRect?.x || 0;
+      const yOffset = gridRect?.y || 0;
+
+      const gridSquareRect = startingGridSquare.getBoundingClientRect();
+      const top = `${(gridSquareRect.top - 2 - yOffset).toString()}px`;
+      const left = `${(gridSquareRect.left - 2 - xOffset).toString()}px`;
+      const width = `${(notePosition.duration * 25).toString()}px`;
+      return { top, left, width, height: '25px' };
     }
 
     function expandNote(notePosition: NotePosition) {
-      const { width } = notePosition.style;
-      const widthValue = parseInt(width.split('p')[0], 10);
+      if (!notePosition.duration) {
+        return;
+      }
       notePosition.duration += 1;
-      notePosition.style.width = `${widthValue + 25}px`;
     }
 
     function contractNote(notePosition: NotePosition) {
-      if (notePosition.duration === 1) {
-        toggleGridSquare(notePosition.key, notePosition.startPosition);
+      if (notePosition.duration === 1 || !notePosition.duration) {
         return;
       }
-      const { width } = notePosition.style;
-      const widthValue = parseInt(width.split('p')[0], 10);
       notePosition.duration -= 1;
-      notePosition.style.width  = `${widthValue - 25}px`;
     }
 
     return {
       allKeys,
-      grid,
-      toggleGridSquare,
+      keyElements,
+      gridElement,
+      addNotePosition,
+      removeNotePosition,
       expandNote,
       contractNote,
       selectedNotePositions,
+      getSelectedNotePositionStyle,
     };
   },
 });
@@ -220,13 +244,6 @@ export default defineComponent({
   border: 1px solid grey;
   box-sizing: border-box;
   background-color: #dddddd;
-}
-.grid-square.start-square {
-  border-left: 3px solid black;
-}
-
-.grid-square.selected {
-  background-color: red;
 }
 
 .right-border {

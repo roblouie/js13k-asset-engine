@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { Song } from '@/sound/song.model';
 import { NotePosition } from '@/sound/note-position.model';
-import { Key } from '@/sound/key.model';
+import { Track } from '@/sound/track.model';
 
 const songs = ref<Song[]>([]);
 
@@ -9,22 +9,23 @@ export function useSound() {
   return {
     songs,
     songsToBytes,
-    getKeysUsed,
+    getUsedNoteFrequencies,
   };
 }
 
 
 function songsToBytes(songs: Song[]): ArrayBuffer {
   const arrayBuffers = songs.map(convertSongToArrayBuffer);
-  /// this needs de-serialized
   const byteLength = arrayBuffers.reduce((accumulator, songArray) => {
     return accumulator + songArray.byteLength;
   }, 0);
 
-  const combinedBytes = new Uint8Array(byteLength);
+  const combinedBytes = new Uint8Array(byteLength + 1);
+  const numberOfSongsBytes = new Uint8Array([songs.length]);
+  combinedBytes.set(numberOfSongsBytes);
   arrayBuffers.forEach((songBuffer: ArrayBuffer) => {
     const songBytes = new Uint8Array(songBuffer);
-    combinedBytes.set(songBytes);
+    combinedBytes.set(songBytes, 1);
   });
   return combinedBytes;
 }
@@ -35,16 +36,14 @@ function convertSongToArrayBuffer(song: Song): ArrayBuffer {
   arrayToBufferize.push(song.tempo); //tempo
   arrayToBufferize.push(song.tracks.length); //number of tracks
 
-  song.tracks.forEach((notePositions: NotePosition[]) =>{
-    const keysUsed = getKeysUsed(notePositions);
-    const usedFrequencies = getUsedNoteFrequencies(keysUsed);
+  song.tracks.forEach((track: Track) => {
+    const usedFrequencies = getUsedNoteFrequencies(track.notes);
     const splitFrequencies = convertFrequenciesTo8BitInt(usedFrequencies);
     arrayToBufferize.push(usedFrequencies.length); // number of pitches
     arrayToBufferize.push(...splitFrequencies); // and both bytes representing each one
-    // map channels through get number of instructions callback
-    const noteInstructions = getNoteInstructions(notePositions);
-    const noteBytes = convertNoteInstructionsTo8BitInt(noteInstructions);
-    arrayToBufferize.push(noteBytes.length); // length of each instruction set
+    const noteInstructions = getNoteInstructions(track.notes); // get note instructions
+    const noteBytes = convertNoteInstructionsTo8BitInt(noteInstructions); // convert them to bytes
+    arrayToBufferize.push(noteBytes.length); // add length of the instruction set
     arrayToBufferize.push(...noteBytes); // ...and corresponding instructions in bytes
   });
 
@@ -57,19 +56,15 @@ function convertSongToArrayBuffer(song: Song): ArrayBuffer {
 }
 
 
-function getKeysUsed(notePositions: NotePosition[]) {
-  const allKeys = notePositions.map(notePosition => notePosition.key);
-  return [...new Set(allKeys)];
-}
-
-function getUsedNoteFrequencies(keysUsed: Key[]): number[] {
-  if (keysUsed.length > 15) {
+function getUsedNoteFrequencies(notePositions: NotePosition[]): number[] {
+  const allFrequencies = notePositions.map(position => position.frequency);
+  const uniqueFrequencies = [...new Set(allFrequencies)];
+  // rest is always first in array
+  uniqueFrequencies.unshift(0);
+  if (uniqueFrequencies.length > 15) {
     alert('you done effed up son');
   }
-  const frequencies = keysUsed.map(key => key.frequency);
-  // rest is always first in array
-  frequencies.unshift(0);
-  return frequencies;
+  return uniqueFrequencies;
 }
 
 
@@ -93,13 +88,11 @@ function getNoteInstructions(notePositions: NotePosition[]) {
     noteInstructions.push(0);
     noteInstructions.push(remainingRestLength);
   }
-  /// source of truth need updated for multiple channels on next argument
-  const  keysUsed = getKeysUsed(notePositions);
-  const usedFrequencies = getUsedNoteFrequencies(keysUsed);
+  const usedFrequencies = getUsedNoteFrequencies(notePositions);
 
   sortedNotes.forEach((note, noteIndex) => {
     // add the next note
-    const frequencyIndex = usedFrequencies.findIndex(frequency => frequency === note.key.frequency);
+    const frequencyIndex = usedFrequencies.findIndex(frequency => frequency === note.frequency);
     noteInstructions.push(frequencyIndex);
     noteInstructions.push(note.duration);
     // this is the last one, no rest to follow
@@ -143,5 +136,6 @@ function convertFrequenciesTo8BitInt(frequencies: number[]) {
     bytesToReturn.push(firstByte);
     bytesToReturn.push(secondByte);
   });
+
   return bytesToReturn;
 }
