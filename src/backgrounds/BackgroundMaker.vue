@@ -52,7 +52,7 @@ import { BackgroundLayer } from '@/backgrounds/background-layer';
 import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
 import { useSprites } from '@/sprite-maker/sprite.composable';
 import ImageDataIcon from '@/tile-draw/image-data-icon';
-import { computed, defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref, onBeforeUnmount } from 'vue';
 import { Sprite } from "@/sprite-maker/sprite.model";
 import { useTiles } from "@/tile-draw/tile.composable";
 import { usePalettes } from "@/palette-maker/palette.composable";
@@ -85,6 +85,8 @@ export default defineComponent({
       return sprites.value.slice(spriteStartOffset, spriteStartOffset + 8);
     });
 
+    let interval = 0;
+
     onMounted(() => {
       canvasContext = builderCanvasElement.value.getContext('2d');
       previewContext =  previewCanvasElement.value.getContext('2d');
@@ -97,7 +99,7 @@ export default defineComponent({
       let yPos5 = 128;
       let yPos6 = 384;
 
-      setInterval(() => {
+      interval = setInterval(() => {
         previewContext?.clearRect(0, 0, 240, 320);
         updatePrevewCanvas(yPos1);
         updatePrevewCanvas(yPos2);
@@ -138,6 +140,10 @@ export default defineComponent({
           yPos6 = -256;
         }
       }, 50);
+    });
+
+    onBeforeUnmount(() => {
+      clearInterval(interval);
     });
 
     function addBackground() {
