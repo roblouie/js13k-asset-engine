@@ -2,7 +2,7 @@
 <div>
 
   <div
-      v-for="(sprite, spriteIndex) in sprites"
+      v-for="(sprite, spriteIndex) in allowedSprites"
       :key="spriteIndex"
       @click="selectedSpriteIndex = spriteIndex"
   >
@@ -28,6 +28,8 @@
     Layer: {{ backgroundLayerIndex}}
   </div>
 
+  <input type="number" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].spriteStartOffset"/>
+
   <canvas
       ref="builderCanvasElement"
     width="128"
@@ -50,7 +52,7 @@ import { BackgroundLayer } from '@/backgrounds/background-layer';
 import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
 import { useSprites } from '@/sprite-maker/sprite.composable';
 import ImageDataIcon from '@/tile-draw/image-data-icon';
-import { defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { Sprite } from "@/sprite-maker/sprite.model";
 import { useTiles } from "@/tile-draw/tile.composable";
 import { usePalettes } from "@/palette-maker/palette.composable";
@@ -73,6 +75,15 @@ export default defineComponent({
 
     const previewCanvasElement = ref<HTMLCanvasElement | null>(null);
     let previewContext: CanvasRenderingContext2D | null;
+
+    const allowedSprites = computed(() => {
+      if (!backgrounds.value || backgrounds.value.length === 0) {
+        return [];
+      }
+
+      const { spriteStartOffset } = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
+      return sprites.value.slice(spriteStartOffset, spriteStartOffset + 8);
+    });
 
     onMounted(() => {
       canvasContext = builderCanvasElement.value.getContext('2d');
@@ -174,10 +185,12 @@ export default defineComponent({
     }
 
     function drawBackgroundLayerToCanvas(backgroundLayer: BackgroundLayer) {
+      const { spriteStartOffset } = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
+
       backgroundLayer.sprites.forEach(sprite => {
         const gridX = sprite.position % 4;
         const gridY = Math.floor(sprite.position / 4);
-        drawSpriteToCanvas(sprites.value[sprite.spriteIndex], gridX * 32, gridY * 32);
+        drawSpriteToCanvas(sprites.value[spriteStartOffset + sprite.spriteIndex], gridX * 32, gridY * 32);
       });
 
       updatePrevewCanvas();
@@ -273,6 +286,7 @@ export default defineComponent({
       previewCanvasElement,
       selectBackground,
       selectBackgroundLayer,
+      allowedSprites,
     };
   },
 });
