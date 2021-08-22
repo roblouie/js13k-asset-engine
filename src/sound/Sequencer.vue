@@ -1,5 +1,5 @@
 <template>
-  <div class="grid-container" ref="gridElement">
+  <div class="grid-container">
     <div
       class="keyboard-container"
       ref="keyElements"
@@ -39,6 +39,12 @@
       />
     </div>
   </div>
+  <section class="sequencer-controls">
+    <div v-for="noteLength in noteLengths" :key="noteLength" class="length-option">
+      <input type="radio" :id="noteLength" :value="noteLength" v-model="lengthOfNoteToAdd"/>
+      <label :for="noteLength">{{ noteLength }}</label>
+    </div>
+  </section>
 </template>
 
 <script lang="ts">
@@ -124,12 +130,16 @@ export default defineComponent({
     }
     allKeys.reverse();
 
+
+    const lengthOfNoteToAdd = ref(1);
+    const noteLengths = [1, 2, 3, 4, 6, 8, 12, 16];
+
     function addNotePosition(key: Key, gridPosition: number) {
       selectedNotePositions.value.push(
         {
           frequency: key.frequency,
           startPosition: gridPosition,
-          duration: 1,
+          duration: lengthOfNoteToAdd.value,
         },
       );
     }
@@ -144,14 +154,13 @@ export default defineComponent({
     }
 
     const keyElements = ref<HTMLElement | undefined>();
-    const gridElement = ref<HTMLElement | undefined>();
 
     function getSelectedNotePositionStyle(notePosition: NotePosition) {
-      if (!keyElements.value?.children || !gridElement.value) {
+      if (!keyElements.value?.children) {
         return;
       }
-      const keyboardRows: Element[] = Array.from(keyElements.value.children);
-      const keyboardRow: Element | undefined = keyboardRows.find((keyRow: Element) => {
+      const keyboardRows: HTMLElement[] = Array.from(keyElements.value.children) as HTMLElement[];
+      const keyboardRow: HTMLElement | undefined = keyboardRows.find((keyRow: HTMLElement) => {
         // somehow ChildNode id is not registered? ¯\_(ツ)_/¯
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -160,20 +169,16 @@ export default defineComponent({
       if (!keyboardRow) {
         return;
       }
-      const keyAndGridSquares: Element[] = Array.from(keyboardRow.children);
-      const startingGridSquare: Element | undefined = keyAndGridSquares.find((gridSquare: Element) => {
+      const keyAndGridSquares: HTMLElement[] = Array.from(keyboardRow.children) as HTMLElement[];
+      const startingGridSquare: HTMLElement | undefined = keyAndGridSquares.find((gridSquare: HTMLElement) => {
         return gridSquare.classList.contains('grid' + notePosition.startPosition.toString());
       });
       if (!startingGridSquare) {
         return;
       }
-      const gridRect = gridElement.value.getBoundingClientRect();
-      const xOffset = gridRect?.x || 0;
-      const yOffset = gridRect?.y || 0;
 
-      const gridSquareRect = startingGridSquare.getBoundingClientRect();
-      const top = `${(gridSquareRect.top - 2 - yOffset).toString()}px`;
-      const left = `${(gridSquareRect.left - 2 - xOffset).toString()}px`;
+      const top = `${(startingGridSquare.offsetTop).toString()}px`;
+      const left = `${(startingGridSquare.offsetLeft).toString()}px`;
       const width = `${(notePosition.duration * 25).toString()}px`;
       return { top, left, width, height: '25px' };
     }
@@ -195,7 +200,9 @@ export default defineComponent({
     return {
       allKeys,
       keyElements,
-      gridElement,
+      lengthOfNoteToAdd,
+      noteLengths,
+
       addNotePosition,
       removeNotePosition,
       expandNote,
@@ -246,6 +253,11 @@ export default defineComponent({
   background-color: #dddddd;
 }
 
+/*the ide be lying, this is used*/
+.grid-square.start-square {
+  border-left: 2px solid black;
+}
+
 .right-border {
   height: 100%;
   width: 3px;
@@ -271,4 +283,13 @@ export default defineComponent({
   position: absolute;
   box-shadow: inset 0 0 6px #2c3e50;
 }
+
+.sequencer-controls {
+  border: 1px solid black;
+}
+
+.length-option {
+  display: inline;
+}
+
 </style>
