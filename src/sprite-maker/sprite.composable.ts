@@ -12,7 +12,7 @@ export function useSprites(): any {
 
 function spritesToBytes(sprites: Sprite[]): ArrayBuffer {
   const numberOfSprites = sprites.length;
-  let spriteByteSize = 0;
+  let spriteByteSize = 1;
 
   sprites.forEach(sprite => {
     spriteByteSize++; // The sprite itself takes up one byte to store the palette number and size in tiles
@@ -27,7 +27,7 @@ function spritesToBytes(sprites: Sprite[]): ArrayBuffer {
     }
   });
 
-  const arrayBuffer = new ArrayBuffer(spriteByteSize + 1);
+  const arrayBuffer = new ArrayBuffer(spriteByteSize);
   const dataView = new DataView(arrayBuffer);
   dataView.setUint8(0, numberOfSprites);
 
