@@ -46,6 +46,8 @@
       >
         {{ spriteIndex }}
       </div>
+
+      <button @click="deleteSprite">Delete Sprite</button>
     </div>
 
     <div>
@@ -146,6 +148,10 @@ export default defineComponent({
 
     function selectPalette(paletteIndex: number) {
       selectedPaletteIndex.value = paletteIndex;
+    }
+
+    function deleteSprite() {
+      sprites.value.splice(selectedSprite.value, 1);
     }
 
     function applyTool(event: MouseEvent) {
@@ -281,6 +287,7 @@ export default defineComponent({
       isFlippedX,
       isFlippedY,
       tileSize,
+      deleteSprite,
     };
   },
 });

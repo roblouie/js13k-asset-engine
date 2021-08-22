@@ -1,7 +1,9 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
 import TilePage from '../TilePage.vue';
 import Music from '../Music.vue';
-import SpriteMaker from "@/sprite-maker/SpriteMaker.vue";
+import SpriteMaker from '@/sprite-maker/SpriteMaker.vue';
+import SoundEffects from '@/sound-effects/SoundEffectMaker.vue';
+import BackgroundMaker from '@/backgrounds/BackgroundMaker.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -19,9 +21,19 @@ const routes: Array<RouteRecordRaw> = [
     component: SpriteMaker,
   },
   {
+    path: '/backgrounds',
+    name: 'Backgrounds',
+    component: BackgroundMaker,
+  },
+  {
     path: '/music',
     name: 'Music',
     component: Music,
+  },
+  {
+    path: '/sound-effects',
+    name: 'SoundEffects',
+    component: SoundEffects,
   },
 ];
 

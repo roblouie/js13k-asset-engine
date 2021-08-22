@@ -3,6 +3,7 @@ import { SpriteTile } from '@/sprite-maker/sprite-tile.model';
 import { Song } from '@/sound/song.model';
 import { Track } from '@/sound/track.model';
 import { NotePosition } from '@/sound/note-position.model';
+import { BackgroundLayer } from '@/backgrounds/background-layer';
 
 interface UnpackedAsset {
   data: any;
@@ -13,12 +14,14 @@ export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const paletteAsset = bytesToPalettes(arrayBuffer, 0);
   const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex);
   const spriteAsset = bytesToSprites(arrayBuffer, tileAsset.finalByteIndex);
+  const backgroundAsset = bytesToBackgrounds(arrayBuffer, spriteAsset.finalByteIndex);
   const songsAsset = bytesToSongs(arrayBuffer, spriteAsset.finalByteIndex);
 
   return {
     paletteAsset,
     tileAsset,
     spriteAsset,
+    backgroundAsset,
     songsAsset,
   };
 }
@@ -114,7 +117,69 @@ function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number): Unpac
   };
 }
 
+function bytesToBackgrounds(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
+  if (startingOffset >= arrayBuffer.byteLength) {
+    return {
+      data: [],
+      finalByteIndex: startingOffset,
+    };
+  }
+
+  const dataView = new DataView(arrayBuffer, startingOffset);
+  const numberOfBackgrounds = dataView.getUint8(0);
+
+  let backgroundsParsed = 0;
+  let bytePosition = 1;
+  const backgroundLayers: BackgroundLayer[] = [];
+
+  while (backgroundsParsed < numberOfBackgrounds) {
+    const numberOfSpritesInBackground = dataView.getUint8(bytePosition);
+    bytePosition++;
+
+    const spriteStartIndex = dataView.getUint8(bytePosition);
+    bytePosition++;
+
+    const backgroundLayer = new BackgroundLayer();
+    backgroundLayer.spriteStartOffset = spriteStartIndex;
+
+    for (let i = 0; i < numberOfSpritesInBackground; i++) {
+      const spriteByte = dataView.getUint8(bytePosition);
+      bytePosition++;
+
+      const position = spriteByte >> 3;
+      const spriteIndex = spriteByte & 0b111;
+      backgroundLayer.sprites.push({ position, spriteIndex });
+    }
+
+    backgroundLayers.push(backgroundLayer);
+
+    backgroundsParsed++;
+  }
+
+  const groupedByLayer = chunkArrayInGroups(backgroundLayers, 3);
+
+  groupedByLayer.forEach(layer => {
+    if (layer.length === 1) {
+      layer.push(new BackgroundLayer(), new BackgroundLayer());
+    } else if (layer.length === 2) {
+      layer.push(new BackgroundLayer());
+    }
+  });
+
+  return {
+    data: groupedByLayer,
+    finalByteIndex: startingOffset + bytePosition,
+  };
+}
+
 function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
+  if (startingOffset >= arrayBuffer.byteLength) {
+    return {
+      data: [],
+      finalByteIndex: startingOffset,
+    };
+  }
+  
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfSongs = dataView.getUint8(0);
 
@@ -182,7 +247,7 @@ function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
   };
 }
 
-function chunkArrayInGroups(array: any[], chunkSize: number): string[][] {
+export function chunkArrayInGroups(array: any[] | Uint8ClampedArray, chunkSize: number): any[] | Uint8ClampedArray[] {
   const chunkedArray = [];
   for (let i = 0; i < array.length; i += chunkSize) {
     chunkedArray.push(array.slice(i, i + chunkSize));
