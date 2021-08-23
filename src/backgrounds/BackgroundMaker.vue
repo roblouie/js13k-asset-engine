@@ -52,12 +52,12 @@
 import { BackgroundLayer } from '@/backgrounds/background-layer';
 import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
 import { useSprites } from '@/sprite-maker/sprite.composable';
-import ImageDataIcon from '@/tile-draw/image-data-icon';
+import ImageDataIcon from '@/tile-draw/image-data-icon.vue';
 import { computed, defineComponent, onMounted, ref, onBeforeUnmount } from 'vue';
-import { Sprite } from "@/sprite-maker/sprite.model";
-import { useTiles } from "@/tile-draw/tile.composable";
-import { usePalettes } from "@/palette-maker/palette.composable";
-import { chunkArrayInGroups } from "@/game-asset-unpacker";
+import { Sprite } from '@/sprite-maker/sprite.model';
+import { useTiles } from '@/tile-draw/tile.composable';
+import { usePalettes } from '@/palette-maker/palette.composable';
+import { chunkArrayInGroups } from '@/game-asset-unpacker';
 
 export default defineComponent({
   name: 'BackgroundMaker',
@@ -89,8 +89,10 @@ export default defineComponent({
     let interval = 0;
 
     onMounted(() => {
-      canvasContext = builderCanvasElement.value.getContext('2d');
-      previewContext =  previewCanvasElement.value.getContext('2d');
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      canvasContext = builderCanvasElement.value!.getContext('2d')!;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      previewContext =  previewCanvasElement.value!.getContext('2d')!;
 
       let yPos1 = -256;
       let yPos2 = 0;
@@ -100,7 +102,7 @@ export default defineComponent({
       let yPos5 = 128;
       let yPos6 = 384;
 
-      interval = setInterval(() => {
+      interval = window.setInterval(() => {
         previewContext?.clearRect(0, 0, 240, 320);
         updatePrevewCanvas(yPos1);
         updatePrevewCanvas(yPos2);
@@ -199,17 +201,15 @@ export default defineComponent({
         const gridY = Math.floor(sprite.position / 4);
         drawSpriteToCanvas(sprites.value[spriteStartOffset + sprite.spriteIndex], gridX * 32, gridY * 32);
       });
-
-      updatePrevewCanvas();
     }
 
     function updatePrevewCanvas(yPos: number, isRightSide = false) {
       previewContext?.save();
       if (isRightSide) {
         previewContext?.scale(-1, 1);
-        previewContext?.drawImage(builderCanvasElement.value, -248, yPos);
+        previewContext?.drawImage(builderCanvasElement.value as HTMLCanvasElement, -248, yPos);
       } else {
-        previewContext?.drawImage(builderCanvasElement.value, -8, yPos);
+        previewContext?.drawImage(builderCanvasElement.value as HTMLCanvasElement, -8, yPos);
       }
       previewContext?.restore();
     }
@@ -232,15 +232,15 @@ export default defineComponent({
         }
 
         if (index === 0) {
-          canvasContext.putImageData(imageData, positionX, positionY);
+          canvasContext?.putImageData(imageData, positionX, positionY);
         } else if (index === 1 && sprite.width === 1) {
-          canvasContext.putImageData(imageData, positionX, positionY + tileSize);
+          canvasContext?.putImageData(imageData, positionX, positionY + tileSize);
         } else if (index === 1 && sprite.width === 2) {
-          canvasContext.putImageData(imageData, positionX + tileSize, positionY);
+          canvasContext?.putImageData(imageData, positionX + tileSize, positionY);
         } else if (index === 2) {
-          canvasContext.putImageData(imageData, positionX, positionY + tileSize);
+          canvasContext?.putImageData(imageData, positionX, positionY + tileSize);
         } else if (index === 3) {
-          canvasContext.putImageData(imageData, positionX + tileSize, positionY + tileSize);
+          canvasContext?.putImageData(imageData, positionX + tileSize, positionY + tileSize);
         }
 
       });
