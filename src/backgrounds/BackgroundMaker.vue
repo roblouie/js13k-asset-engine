@@ -3,7 +3,7 @@
 
   <div
       v-for="(sprite, spriteIndex) in allowedSprites"
-      :key="spriteIndex"
+      :key="sprite"
       @click="selectedSpriteIndex = spriteIndex"
   >
     <image-data-icon :sprite="sprite"></image-data-icon>
@@ -28,6 +28,7 @@
     Layer: {{ backgroundLayerIndex}}
   </div>
 
+  <input type="checkbox" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].isSemiTransparent" />
   <input type="number" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].spriteStartOffset"/>
 
   <canvas

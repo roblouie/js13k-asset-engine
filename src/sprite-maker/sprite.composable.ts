@@ -1,5 +1,5 @@
-import { ref } from "vue";
-import { Sprite } from "@/sprite-maker/sprite.model";
+import { ref } from 'vue';
+import { Sprite } from '@/sprite-maker/sprite.model';
 
 const sprites = ref<Sprite[]>([]);
 
