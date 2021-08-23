@@ -30,14 +30,12 @@ function backgroundsToBytes(backgrounds: BackgroundLayer[][]): ArrayBuffer {
 
   backgrounds.forEach(backgroundLayers => {
     backgroundLayers.forEach(backgroundLayer => {
-      // Store how many sprites
       dataView.setUint8(byteOffset, backgroundLayer.sprites.length);
       byteOffset++;
 
-      // Store the sprite to start at. Background layers only allow 8 sprites and the should be sequential in the
-      // sprite list. That way the sprite number can always be 0-7. Storing this number specifies what number sprite
-      // 0 should be. Sprite 1 will be this number + 1, sprite 2 this number + 2 and so on for all 8 sprites.
-      dataView.setUint8(byteOffset, backgroundLayer.spriteStartOffset);
+      const transparentBit = backgroundLayer.isSemiTransparent ? 1 : 0;
+      const metadata = (transparentBit << 7) + (backgroundLayer.spriteStartOffset & 127);
+      dataView.setUint8(byteOffset, metadata);
       byteOffset++;
 
       backgroundLayer.sprites.forEach(sprite => {

@@ -15,7 +15,7 @@ export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const tileAsset = bytesToTiles(arrayBuffer, paletteAsset.finalByteIndex);
   const spriteAsset = bytesToSprites(arrayBuffer, tileAsset.finalByteIndex);
   const backgroundAsset = bytesToBackgrounds(arrayBuffer, spriteAsset.finalByteIndex);
-  const songsAsset = bytesToSongs(arrayBuffer, spriteAsset.finalByteIndex);
+  const songsAsset = bytesToSongs(arrayBuffer, backgroundAsset.finalByteIndex);
 
   return {
     paletteAsset,
@@ -127,20 +127,24 @@ function bytesToBackgrounds(arrayBuffer: ArrayBuffer, startingOffset: number): U
 
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfBackgrounds = dataView.getUint8(0);
+  const numberOfBackgroundLayers = numberOfBackgrounds * 3;
 
   let backgroundsParsed = 0;
   let bytePosition = 1;
   const backgroundLayers: BackgroundLayer[] = [];
 
-  while (backgroundsParsed < numberOfBackgrounds) {
+  while (backgroundsParsed < numberOfBackgroundLayers) {
     const numberOfSpritesInBackground = dataView.getUint8(bytePosition);
     bytePosition++;
 
-    const spriteStartIndex = dataView.getUint8(bytePosition);
+    const metadata = dataView.getUint8(bytePosition);
+    const spriteStartIndex = metadata & 127;
+    const isSemiTransparent = metadata >> 7;
     bytePosition++;
 
     const backgroundLayer = new BackgroundLayer();
     backgroundLayer.spriteStartOffset = spriteStartIndex;
+    backgroundLayer.isSemiTransparent = isSemiTransparent === 1;
 
     for (let i = 0; i < numberOfSpritesInBackground; i++) {
       const spriteByte = dataView.getUint8(bytePosition);
