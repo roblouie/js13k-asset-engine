@@ -183,7 +183,7 @@ function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
       finalByteIndex: startingOffset,
     };
   }
-  
+
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfSongs = dataView.getUint8(0);
 
@@ -222,7 +222,7 @@ function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
       while (notesParsed < numberOfNotes) {
         const combinedInstruction = dataView.getUint8(bytePosition);
         const pitchIndex = combinedInstruction >> 4;
-        const noteLength = combinedInstruction & 0b1111;
+        const noteLength = (combinedInstruction & 0b1111) + 1; // note length is stored 0-indexed
 
         if (pitchIndex !== 0) {
           const noteFrequency = pitches[pitchIndex];

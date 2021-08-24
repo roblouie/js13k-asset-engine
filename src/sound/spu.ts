@@ -82,6 +82,6 @@ function scheduleTrackNotes(track: Track) {
 }
 
 function getDurationInSeconds(numberOfSixteenths: number): number {
-  const timePerSixteenth = 60 / currentTempo / 16;
+  const timePerSixteenth = 60 / currentTempo / 4;
   return numberOfSixteenths * timePerSixteenth;
 }

@@ -23,16 +23,17 @@ function songsToBytes(songs: Song[]): ArrayBuffer {
   const combinedBytes = new Uint8Array(byteLength + 1);
   const numberOfSongsBytes = new Uint8Array([songs.length]);
   combinedBytes.set(numberOfSongsBytes);
+  let offset = 1;
   arrayBuffers.forEach((songBuffer: ArrayBuffer) => {
     const songBytes = new Uint8Array(songBuffer);
-    combinedBytes.set(songBytes, 1);
+    combinedBytes.set(songBytes, offset);
+    offset += songBytes.length;
   });
   return combinedBytes;
 }
 
 function convertSongToArrayBuffer(song: Song): ArrayBuffer {
   const arrayToBufferize = [];
-
   arrayToBufferize.push(song.tempo); //tempo
   arrayToBufferize.push(song.tracks.length); //number of tracks
 
@@ -86,7 +87,7 @@ function getNoteInstructions(notePositions: NotePosition[]) {
     }
     const remainingRestLength = firstNotePosition - (additionalMeasuresOfRest * 16);
     noteInstructions.push(0);
-    noteInstructions.push(remainingRestLength);
+    noteInstructions.push(remainingRestLength - 1); // all note durations are 0-indexed
   }
   const usedFrequencies = getUsedNoteFrequencies(notePositions);
 
@@ -94,7 +95,7 @@ function getNoteInstructions(notePositions: NotePosition[]) {
     // add the next note
     const frequencyIndex = usedFrequencies.findIndex(frequency => frequency === note.frequency);
     noteInstructions.push(frequencyIndex);
-    noteInstructions.push(note.duration);
+    noteInstructions.push(note.duration - 1); // all note durations are 0-indexed
     // this is the last one, no rest to follow
     if (noteIndex + 1 === sortedNotes.length) {
       return;
@@ -108,11 +109,11 @@ function getNoteInstructions(notePositions: NotePosition[]) {
     const measuresOfRest = Math.floor(gapToNextNote / 16);
     for (let i = 0; i < measuresOfRest; i++) {
       noteInstructions.push(0);
-      noteInstructions.push(15);
+      noteInstructions.push(15); // all note durations are 0-indexed
     }
     const remainingRest = gapToNextNote - (measuresOfRest * 16);
     noteInstructions.push(0);
-    noteInstructions.push(remainingRest);
+    noteInstructions.push(remainingRest - 1); // all note durations are 0-indexed
   });
   return noteInstructions;
 }
