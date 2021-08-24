@@ -22,6 +22,22 @@ export function startSong(song: Song): void {
   createOscillators();
   masterGain.gain.value = .2;
   song.tracks.forEach(scheduleTrackNotes);
+  let totalNotePositionsUsed = 0;
+  song.tracks.forEach(track => {
+    const lastNote = track.notes[track.notes.length - 1];
+    const currentTrackLastUsedPos = lastNote.startPosition + lastNote.duration;
+    if (currentTrackLastUsedPos > totalNotePositionsUsed) {
+      totalNotePositionsUsed = currentTrackLastUsedPos;
+    }
+  });
+  const songEndInSeconds = getDurationInSeconds(totalNotePositionsUsed + 1);
+
+  setTimeout(() => restartSong(song), songEndInSeconds* 1000);
+}
+
+function restartSong(song: Song) {
+  stopSong();
+  startSong(song);
 }
 
 export function stopSong() {
