@@ -11,6 +11,7 @@ let isCtxStarted = false;
 
 const oscillators: OscillatorNode[] = [];
 const gainNodes: GainNode[] = [];
+let repeatTimer: any;
 
 export function startSong(song: Song): void {
   if (!isCtxStarted) {
@@ -24,15 +25,19 @@ export function startSong(song: Song): void {
   song.tracks.forEach(scheduleTrackNotes);
   let totalNotePositionsUsed = 0;
   song.tracks.forEach(track => {
-    const lastNote = track.notes[track.notes.length - 1];
+    const lastNote = track.notes[track.notes.length - 1] || null;
+    if (!lastNote) {
+      return;
+    }
     const currentTrackLastUsedPos = lastNote.startPosition + lastNote.duration;
     if (currentTrackLastUsedPos > totalNotePositionsUsed) {
       totalNotePositionsUsed = currentTrackLastUsedPos;
     }
   });
-  const songEndInSeconds = getDurationInSeconds(totalNotePositionsUsed + 1);
+  const songLengthInMeasures = Math.ceil(totalNotePositionsUsed % 16);
+  const songEndInSeconds = getDurationInSeconds(songLengthInMeasures * 16 + 1);
 
-  setTimeout(() => restartSong(song), songEndInSeconds* 1000);
+  repeatTimer = setTimeout(() => restartSong(song), songEndInSeconds* 1000);
 }
 
 function restartSong(song: Song) {
@@ -43,6 +48,7 @@ function restartSong(song: Song) {
 export function stopSong() {
   isSongPlaying.value = false;
   masterGain.gain.value = 0;
+  clearTimeout(repeatTimer);
   oscillators.forEach(osc => osc.stop());
   oscillators.splice(0, oscillators.length);
   gainNodes.splice(0, gainNodes.length);
