@@ -45,7 +45,7 @@
           @mouseout="stopDrawing"
       ></canvas>
       <div>
-        {{ currentPixel }}
+        {{ coordinates }}
       </div>
     </div>
   </div>
@@ -76,6 +76,7 @@ export default defineComponent({
     const drawPosition = { x: 0, y: 0 };
     let isDrawing = false;
     const currentPixel = ref(0);
+    const coordinates = ref({ x: 0, y: 0 });
     const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes } = useTiles();
 
     onMounted(() => {
@@ -121,6 +122,8 @@ export default defineComponent({
     function draw(event: MouseEvent) {
       const pixelX = Math.floor(event.offsetX / 20);
       const pixelY = Math.floor(event.offsetY / 20);
+      coordinates.value.x = pixelX;
+      coordinates.value.y = pixelY;
 
       currentPixel.value = pixelX + (pixelY * tileSize);
 
@@ -153,6 +156,7 @@ export default defineComponent({
       tiles,
       selectTile,
       selectedTileIndex,
+      coordinates,
     };
   },
 });
