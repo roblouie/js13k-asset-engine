@@ -50,7 +50,7 @@ export default defineComponent({
 
     const selectedTrackNumber = ref(0);
     const selectedTrackNotePositions = computed({
-      get: () => selectedSong.value.tracks[selectedTrackNumber.value].notes || [],
+      get: () => selectedSong.value?.tracks[selectedTrackNumber.value]?.notes || [],
       set: (value) => songs.value[0].tracks[selectedTrackNumber.value].notes = value,
     });
 
@@ -90,6 +90,7 @@ export default defineComponent({
       frequenciesUsed,
 
       isSongPlaying,
+      addSong,
       onSongStart,
       stopSong,
     };

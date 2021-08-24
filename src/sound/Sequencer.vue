@@ -16,10 +16,10 @@
         ></div>
         <div
           v-for="gridPosition in 3200"
-          :key="gridPosition - 1"
+          :key="gridPosition"
           class="grid-square"
           @click="addNotePosition(key, gridPosition - 1)"
-          :class="[{'start-square': ((gridPosition) % 16 === 0)}, `grid${gridPosition - 1}`]"/>
+          :class="[{'start-square': ((gridPosition - 1) % 16 === 0)}, `grid${gridPosition - 1}`]"/>
       </div>
     </div>
 
@@ -255,7 +255,7 @@ export default defineComponent({
 
 /*the ide be lying, this is used*/
 .grid-square.start-square {
-  border-left: 2px solid black;
+  border-left: 3px solid black;
 }
 
 .right-border {
