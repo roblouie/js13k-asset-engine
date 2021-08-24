@@ -34,10 +34,10 @@ export function startSong(song: Song): void {
       totalNotePositionsUsed = currentTrackLastUsedPos;
     }
   });
-  const songLengthInMeasures = Math.ceil(totalNotePositionsUsed % 16);
-  const songEndInSeconds = getDurationInSeconds(songLengthInMeasures * 16 + 1);
+  const songLengthInMeasures = Math.ceil(totalNotePositionsUsed / 16);
+  const songEndInSeconds = getDurationInSeconds(songLengthInMeasures * 16);
 
-  repeatTimer = setTimeout(() => restartSong(song), songEndInSeconds* 1000);
+  repeatTimer = setTimeout(() => restartSong(song), songEndInSeconds * 1000);
 }
 
 function restartSong(song: Song) {
