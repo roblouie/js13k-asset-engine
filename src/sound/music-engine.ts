@@ -6,30 +6,55 @@ let currentTempo = 0;
 let ctx: AudioContext;
 let masterGain: GainNode;
 
+// will be regular variable
 export const isSongPlaying = ref(false);
 let isCtxStarted = false;
 
 const oscillators: OscillatorNode[] = [];
 const gainNodes: GainNode[] = [];
+let repeatTimer: any;
 
+// spu will have a local copy of songs and this should take the song's array
+// position as an argument
 export function startSong(song: Song): void {
   if (!isCtxStarted) {
     createContext();
+    createOscillators();
     isCtxStarted = true;
+  }
+  if (isSongPlaying.value) {
+    stopSong();
   }
   isSongPlaying.value = true;
   currentTempo = song.tempo;
-  createOscillators();
   masterGain.gain.value = .2;
   song.tracks.forEach(scheduleTrackNotes);
+  let totalNotePositionsUsed = 0;
+  song.tracks.forEach(track => {
+    const lastNote = track.notes[track.notes.length - 1] || null;
+    if (!lastNote) {
+      return;
+    }
+    const currentTrackLastUsedPos = lastNote.startPosition + lastNote.duration;
+    if (currentTrackLastUsedPos > totalNotePositionsUsed) {
+      totalNotePositionsUsed = currentTrackLastUsedPos;
+    }
+  });
+  const songLengthInMeasures = Math.ceil(totalNotePositionsUsed / 16);
+  const songEndInSeconds = getDurationInSeconds(songLengthInMeasures * 16);
+
+  repeatTimer = setTimeout(() => startSong(song), songEndInSeconds * 1000);
 }
 
 export function stopSong() {
   isSongPlaying.value = false;
   masterGain.gain.value = 0;
-  oscillators.forEach(osc => osc.stop());
-  oscillators.splice(0, oscillators.length);
-  gainNodes.splice(0, gainNodes.length);
+  clearTimeout(repeatTimer);
+  oscillators.forEach(osc => osc.frequency.cancelScheduledValues(ctx.currentTime));
+  gainNodes.forEach(gain => {
+    gain.gain.cancelScheduledValues(ctx.currentTime);
+    gain.gain.value = 0;
+  });
 }
 
 /// 🥺👉👈
@@ -76,12 +101,12 @@ function scheduleTrackNotes(track: Track) {
     const startTimeInSeconds = getDurationInSeconds(note.startPosition);
     const endTimeInSeconds = getDurationInSeconds(note.startPosition + note.duration);
     oscillators[track.trackId].frequency.setValueAtTime(note.frequency, ctx.currentTime + startTimeInSeconds);
-    gainNodes[track.trackId].gain.setValueAtTime(1, ctx.currentTime + startTimeInSeconds);
+    gainNodes[track.trackId].gain.setValueAtTime(track.trackId === 2 ? .5 : 1, ctx.currentTime + startTimeInSeconds);
     gainNodes[track.trackId].gain.setValueAtTime(0, ctx.currentTime + endTimeInSeconds);
   });
 }
 
 function getDurationInSeconds(numberOfSixteenths: number): number {
-  const timePerSixteenth = 60 / currentTempo / 16;
+  const timePerSixteenth = 60 / currentTempo / 4;
   return numberOfSixteenths * timePerSixteenth;
 }

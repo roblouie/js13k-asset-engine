@@ -27,11 +27,11 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import Sequencer from '@/sound/Sequencer.vue';
 import { useSound } from '@/sound/sound.composable';
 import { Song } from '@/sound/song.model';
-import { isSongPlaying, startSong, stopSong } from '@/sound/spu';
+import { isSongPlaying, startSong, stopSong } from '@/sound/music-engine';
 
 export default defineComponent({
   components: {
@@ -39,9 +39,6 @@ export default defineComponent({
   },
   setup() {
     const { songs, getUsedNoteFrequencies } = useSound();
-    if (!songs.value.length) {
-      addSong();
-    }
 
     const selectedSongNumber = ref(0);
     const selectedSong = computed(() => {
@@ -50,8 +47,14 @@ export default defineComponent({
 
     const selectedTrackNumber = ref(0);
     const selectedTrackNotePositions = computed({
-      get: () => selectedSong.value.tracks[selectedTrackNumber.value].notes || [],
-      set: (value) => songs.value[0].tracks[selectedTrackNumber.value].notes = value,
+      get: () => {
+        if (selectedSong.value?.tracks?.length) {
+          return selectedSong.value?.tracks[selectedTrackNumber.value].notes;
+        } else {
+          return [];
+        }
+      },
+      set: (value) => songs.value[selectedSongNumber.value].tracks[selectedTrackNumber.value].notes = value,
     });
 
     const frequenciesUsed = computed(() => {
@@ -90,6 +93,7 @@ export default defineComponent({
       frequenciesUsed,
 
       isSongPlaying,
+      addSong,
       onSongStart,
       stopSong,
     };
