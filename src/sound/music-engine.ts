@@ -80,9 +80,9 @@ function scheduleTrackNotes(track: Track, index: number) {
   track.notes.forEach((note) => {
     const startTimeInSeconds = getDurationInSeconds(note.startPosition);
     const endTimeInSeconds = getDurationInSeconds(note.startPosition + note.duration);
-    oscillators[index].frequency.setValueAtTime(note.frequency, ctx.currentTime + startTimeInSeconds);
-    gainNodes[index].gain.setValueAtTime(1, ctx.currentTime + startTimeInSeconds);
-    gainNodes[index].gain.setValueAtTime(0, ctx.currentTime + endTimeInSeconds);
+    oscillators[track.trackId].frequency.setValueAtTime(note.frequency, ctx.currentTime + startTimeInSeconds);
+    gainNodes[track.trackId].gain.setValueAtTime(1, ctx.currentTime + startTimeInSeconds);
+    gainNodes[track.trackId].gain.setValueAtTime(0, ctx.currentTime + endTimeInSeconds);
   });
 }
 
