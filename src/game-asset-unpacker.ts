@@ -176,6 +176,14 @@ function bytesToBackgrounds(arrayBuffer: ArrayBuffer, startingOffset: number): U
   };
 }
 
+const waves = [
+  'sawtooth',
+  'sine',
+  'square',
+  'triangle',
+] as any;
+
+
 function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
   if (startingOffset >= arrayBuffer.byteLength) {
     return {
@@ -183,7 +191,7 @@ function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
       finalByteIndex: startingOffset,
     };
   }
-
+  
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfSongs = dataView.getUint8(0);
 
@@ -200,8 +208,11 @@ function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
     const tracks: Track[] = [];
     let tracksParsed = 0;
     while (tracksParsed < numberOfTracks) {
-      const numberOfPitches = dataView.getUint8(bytePosition);
-      bytePosition++;
+      const waveformAndPitches = dataView.getUint8(bytePosition);
+      const waveformIndex = waveformAndPitches >> 4;
+      const waveform = waves.find((wave: any, index: number) => index === waveformIndex);
+      const numberOfPitches = (waveformAndPitches &15) + 1;
+      bytePosition ++;
 
       let pitchesParsed = 0;
       const pitches = [];
@@ -236,7 +247,7 @@ function bytesToSongs(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
         notesParsed++;
       }
 
-      tracks.push({ trackId: tracksParsed, notes: notes });
+      tracks.push({ wave: waveform, notes: notes });
       tracksParsed++;
     }
     songs.push(new Song(tempo, tracks));
