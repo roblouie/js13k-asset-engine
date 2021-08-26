@@ -1,10 +1,15 @@
 <template>
-  Compressed Size: ~{{ compressedSize }} / 13312 bytes
+    Compressed Size: ~{{ compressedSize }} / 13312 bytes
+  <div style="display: flex; justify-content: space-evenly">
+    <div>
+      <input type="file" @change="loadAssets"/>
+      <button @click="saveAssets">Save Assets</button>
+    </div>
 
-  <div>
-    <input type="file" @change="loadAssets"/>
-    <button @click="saveAssets">Save Assets</button>
+    <JsonArtSaveLoad></JsonArtSaveLoad>
   </div>
+
+
 
   <menu>
     <router-link to="/">Home</router-link>
@@ -29,11 +34,12 @@ import { saveFileToDevice } from '@binary-files/web-file-mover';
 import { useTiles } from '@/tile-draw/tile.composable';
 import { useSprites } from '@/sprite-maker/sprite.composable';
 import { useSound } from '@/sound/sound.composable';
-import { useBackgrounds } from "@/backgrounds/backgrounds.composable";
+import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
+import JsonArtSaveLoad from '@/JsonArtSaveLoad.vue';
 
 export default defineComponent({
   name: 'App',
-  components: {},
+  components: { JsonArtSaveLoad },
   setup() {
     const compressedSize = ref(0);
     const { palettes } = usePalettes();

@@ -53,13 +53,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
-import { useTiles } from "@/tile-draw/tile.composable";
-import ImageDataIcon from "@/tile-draw/image-data-icon.vue";
+import { defineComponent, ref, onMounted } from 'vue';
+import { useTiles } from '@/tile-draw/tile.composable';
+import ImageDataIcon from '@/tile-draw/image-data-icon.vue';
 
 export default defineComponent({
-  name: "tile-draw",
-  components: {ImageDataIcon},
+  name: 'tile-draw',
+  components: { ImageDataIcon },
   props: {
     palettes: {
       required: true,

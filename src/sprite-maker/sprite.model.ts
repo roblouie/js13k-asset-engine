@@ -1,9 +1,15 @@
-import { SpriteTile } from "@/sprite-maker/sprite-tile.model";
+import { SpriteTile } from '@/sprite-maker/sprite-tile.model';
 
 export class Sprite {
   spriteTiles: SpriteTile[];
   paletteNumber: number;
   size: number;
+
+  static FromJson(jsonObject: any) {
+    const sprite = new Sprite(jsonObject.paletteNumber, jsonObject.size);
+    sprite.spriteTiles = jsonObject.spriteTiles;
+    return sprite;
+  }
 
   constructor(paletteNumber: number, size: number) {
     this.paletteNumber = paletteNumber;

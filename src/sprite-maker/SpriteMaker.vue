@@ -93,17 +93,17 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
-import { useTiles } from "@/tile-draw/tile.composable";
-import { usePalettes } from "@/palette-maker/palette.composable";
-import ImageDataIcon from "@/tile-draw/image-data-icon.vue";
-import { Sprite } from "@/sprite-maker/sprite.model";
-import { useSprites } from "@/sprite-maker/sprite.composable";
-import { SpriteTile } from "@/sprite-maker/sprite-tile.model";
+import { computed, defineComponent, onMounted, ref } from 'vue';
+import { useTiles } from '@/tile-draw/tile.composable';
+import { usePalettes } from '@/palette-maker/palette.composable';
+import ImageDataIcon from '@/tile-draw/image-data-icon.vue';
+import { Sprite } from '@/sprite-maker/sprite.model';
+import { useSprites } from '@/sprite-maker/sprite.composable';
+import { SpriteTile } from '@/sprite-maker/sprite-tile.model';
 
 export default defineComponent({
-  name: "SpriteMaker",
-  components: {ImageDataIcon},
+  name: 'SpriteMaker',
+  components: { ImageDataIcon },
   setup() {
     const { palettes } = usePalettes();
     const { tiles, tileSize, tileToImageData } = useTiles();
@@ -158,13 +158,13 @@ export default defineComponent({
       const tilePosition = getTilePositionInSprite(event);
       const sprite = sprites.value[selectedSprite.value];
 
-       if (tool.value === 'place') {
-         sprite.spriteTiles[tilePosition] = new SpriteTile(isFlippedX.value, isFlippedY.value, selectedTileIndex.value);
-         selectedSpriteTile.value = tilePosition;
-         drawSpriteToCanvas(sprite);
-       } else {
-         selectedSpriteTile.value = tilePosition;
-       }
+      if (tool.value === 'place') {
+        sprite.spriteTiles[tilePosition] = new SpriteTile(isFlippedX.value, isFlippedY.value, selectedTileIndex.value);
+        selectedSpriteTile.value = tilePosition;
+        drawSpriteToCanvas(sprite);
+      } else {
+        selectedSpriteTile.value = tilePosition;
+      }
     }
 
     function selectSprite(spriteIndex: number) {

@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { audioContext, whiteNoiseLoading } from '@/audio-initializer';
-import { computed, defineComponent, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { Sound } from '@/sound-effects/sound';
 
 export default defineComponent({

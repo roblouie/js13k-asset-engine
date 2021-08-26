@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
 const tileSize = 16;
 const tiles = ref<number[][]>([]);
