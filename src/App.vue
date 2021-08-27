@@ -18,6 +18,7 @@
     <router-link to="/backgrounds">Backgrounds</router-link>
     <router-link to="/music">Music</router-link>
     <router-link to="/sound-effects">Sound Effects</router-link>
+    <router-link to="level-editor">Level Editor</router-link>
   </menu>
 
   <router-view></router-view>

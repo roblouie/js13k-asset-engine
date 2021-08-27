@@ -32,8 +32,6 @@ function loadJson(event: any) {
       tiles.value = json.tiles;
       sprites.value = json.sprites.map(sprite => Sprite.FromJson(sprite));
       backgrounds.value = json.backgrounds;
-
-      debugger;
     };
     fileReader.readAsText(file);
   }
