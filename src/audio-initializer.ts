@@ -3,7 +3,88 @@ export const audioContext = new AudioContext();
 export const whiteNoiseLoading = initializeWhiteNoiseProcessor();
 
 async function initializeWhiteNoiseProcessor() {
-  const whiteNoiseText = `class WhiteNoiseGainProcessor extends AudioWorkletProcessor{constructor(){super(),this.linearFeedbackShift=32767,this.samplesElapsed=0}stepLinearFeedbackShift(e){const t=this.getBit(this.linearFeedbackShift,0),a=this.getBit(this.linearFeedbackShift,1)^t;this.linearFeedbackShift>>=1,this.linearFeedbackShift=this.setBit(this.linearFeedbackShift,14,a),7===e&&(this.linearFeedbackShift=this.setBit(this.linearFeedbackShift,6,a))}getValue(){return 1&~(1&this.linearFeedbackShift)}setBit(e,t,a){let i=this.clearBit(e,t);return 1===a&&(i|=1<<t),i}clearBit(e,t){return e&~(1<<t)}getBit(e,t){return e>>t&1}process(e,t,a){const i=a.sampleRate/a.changesPerSecond;return t[0].forEach(e=>{for(let t=0;t<e.length;t++)e[t]=this.getValue(),e[t]=this.getValue(),this.samplesElapsed++,this.samplesElapsed>=i&&(this.stepLinearFeedbackShift(a.counterWidth),this.samplesElapsed=0)}),!0}static get parameterDescriptors(){return[{name:"sampleRate",defaultValue:44100,automationRate:"k-rate"},{name:"changesPerSecond",defaultValue:500,automationRate:"k-rate"},{name:"counterWidth",defaultValue:15,automationRate:"k-rate"}]}}registerProcessor("white-noise-gain-processor",WhiteNoiseGainProcessor);`;
+  const whiteNoiseText = `
+class WNP extends AudioWorkletProcessor {
+  constructor() {
+    super();
+
+    this.linearFeedbackShift = 0x7fff;
+    this.sampleRate = 44100;
+    this.samplesElapsed = 0;
+  }
+
+  stepLinearFeedbackShift(counterWidth) {
+    const bit0 = this.getBit(this.linearFeedbackShift, 0);
+    const bit1 = this.getBit(this.linearFeedbackShift, 1);
+    const result = bit1 ^ bit0;
+
+    this.linearFeedbackShift >>= 1;
+    this.linearFeedbackShift = this.setBit(this.linearFeedbackShift, 14, result);
+
+    if (counterWidth === 7) {
+      this.linearFeedbackShift = this.setBit(this.linearFeedbackShift, 6, result);
+    }
+  }
+
+  getValue() {
+    return ~(this.linearFeedbackShift & 0b1) & 0b1;
+  }
+
+  setBit(value, bitPosition, bitValue) {
+    let result = this.clearBit(value, bitPosition);
+    if (bitValue === 1) {
+      result |= 0b1 << bitPosition;
+    }
+
+    return result;
+  }
+
+  clearBit(value, bitPosition) {
+    return value & ~(0b1 << bitPosition);
+  }
+
+  getBit(value, bitPosition) {
+    return (value >> bitPosition) & 0b1;
+  }
+
+  process (inputs, outputs, parameters) {
+    const samplesUntilNextValue = this.sampleRate / parameters.changesPerSecond;
+    const output = outputs[0];
+
+    output.forEach(channel => {
+      for (let i = 0; i < channel.length; i++) {
+        channel[i] = this.getValue();
+        channel[i] = this.getValue();
+        this.samplesElapsed++;
+        if (this.samplesElapsed >= samplesUntilNextValue) {
+          this.stepLinearFeedbackShift(parameters.counterWidth[0]);
+          this.samplesElapsed = 0;
+        }
+      }
+    })
+    return true
+  }
+
+  static get parameterDescriptors () {
+    return [
+      {
+        name: 'changesPerSecond',
+        defaultValue: 500,
+        automationRate: 'k-rate',
+      },
+      {
+        name: 'counterWidth',
+        defaultValue: 15,
+        minValue: 7,
+        maxValue: 15,
+        automationRate: 'k-rate',
+      }
+    ]
+  }
+}
+
+registerProcessor('white-noise-processor', WNP);
+  `;
   const blob = new Blob([whiteNoiseText], { type: 'application/javascript' });
   await audioContext.audioWorklet.addModule(URL.createObjectURL(blob));
 }

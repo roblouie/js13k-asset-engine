@@ -1,4 +1,5 @@
 <template>
+  FIGURE OUT BIT SIZE TO SEE IF WAVES CAN BE MADE TALLER FOR NO EXTRA SPACE PER ENEMY
   <div>
     <button @click="saveJson">Save JSON</button>
     <input type="file" @change="loadJson"/>
