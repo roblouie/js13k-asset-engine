@@ -195,7 +195,7 @@ export default defineComponent({
         .connect(gainNode)
         .connect(audioContext.destination);
 
-      const oscillator = new OscillatorNode(audioContext, { type: 'sawtooth' });
+      const oscillator = new OscillatorNode(audioContext, { type: 'square' });
       const oscillatorGain = new GainNode(audioContext);
       oscillator.connect(oscillatorGain);
       oscillatorGain.connect(audioContext.destination);
