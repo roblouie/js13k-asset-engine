@@ -195,7 +195,7 @@ export default defineComponent({
         .connect(gainNode)
         .connect(audioContext.destination);
 
-      const oscillator = new OscillatorNode(audioContext, { type: 'sawtooth' });
+      const oscillator = new OscillatorNode(audioContext, { type: 'square' });
       const oscillatorGain = new GainNode(audioContext);
       oscillator.connect(oscillatorGain);
       oscillatorGain.connect(audioContext.destination);
@@ -254,7 +254,7 @@ export default defineComponent({
       a.href = URL.createObjectURL(new Blob([json], {
         type: 'text/plain',
       }));
-      a.setAttribute('download', 'art.json');
+      a.setAttribute('download', 'this-is-a-sound-effect.json');
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

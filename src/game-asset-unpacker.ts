@@ -291,7 +291,7 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
       const gainInstruction = dataView.getUint8(bytePosition);
       const gain = (gainInstruction >> 6) / 3;
       const isWhiteNoise = ((gainInstruction >> 5) & 0b1) === 1;
-      const timeFromLastInstruction = (gainInstruction & 0b11111) / 5;
+      const timeFromLastInstruction = (gainInstruction & 0b11111) / 10;
       gainInstructions.push({ gain, isWhiteNoise, timeFromLastInstruction });
       gainInstructionsParsed ++;
       bytePosition ++;
@@ -305,11 +305,12 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
       const otherInstruction = dataView.getUint8(bytePosition);
       const isWidth = otherInstruction >> 7 === 1;
       if (isWidth) {
-        const timeFromLastInstruction = (otherInstruction & 0b11111) / 5;
+        const timeFromLastInstruction = (otherInstruction & 0b11111) / 10;
         widthInstructions.push({ timeFromLastInstruction, isWidth });
       } else {
         const isLinearRampTo = ((otherInstruction >> 5) & 0b1) === 1;
-        const durationInSeconds = (otherInstruction & 0b11111) / 5;
+        const durationInSeconds = (otherInstruction & 0b11111) / 10;
+        debugger;
         bytePosition++;
         const pitchBytes = dataView.getUint8(bytePosition);
         const pitch = (pitchBytes * 70) + 1;

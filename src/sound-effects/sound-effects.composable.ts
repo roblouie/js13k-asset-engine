@@ -37,18 +37,18 @@ function convertSoundEffectToArrayBuffer(soundEffect: SoundEffect): ArrayBuffer 
   soundEffect.gainInstructions.forEach(gainInstruction => {
     const offsetGainLevel = (Math.floor(gainInstruction.gain * 3)) << 6;
     const offsetIsNoise = (gainInstruction.isWhiteNoise ? 1 : 0) << 5;
-    const offsetTime = Math.round((gainInstruction.timeFromLastInstruction) * 5);
+    const offsetTime = Math.round((gainInstruction.timeFromLastInstruction) * 10);
     arrayToBufferize.push(offsetGainLevel + offsetIsNoise + offsetTime);
   });
   soundEffect.widthInstructions.forEach(widthInstruction => {
     const widthInstrucionFlag = 0b1000000;
-    const offsetTime = Math.round((widthInstruction.timeFromLastInstruction) * 5);
+    const offsetTime = Math.round((widthInstruction.timeFromLastInstruction) * 10);
     arrayToBufferize.push(widthInstrucionFlag + offsetTime);
   });
   soundEffect.pitchInstructions.forEach(pitchInstruction => {
     const linearRampFlag = pitchInstruction.isLinearRampTo ? 1 : 0;
     const offsetLinearRampFlag = linearRampFlag << 5;
-    const offsetDuration = Math.round((pitchInstruction.durationInSeconds) * 5);
+    const offsetDuration = Math.round((pitchInstruction.durationInSeconds) * 10);
     const roundedPitch = Math.round((pitchInstruction.pitch - 1) / 70);
     arrayToBufferize.push(offsetLinearRampFlag + offsetDuration);
     arrayToBufferize.push(roundedPitch);
