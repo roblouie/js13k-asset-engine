@@ -32,6 +32,13 @@ function songsToBytes(songs: Song[]): ArrayBuffer {
   return combinedBytes;
 }
 
+const waves = [
+  'sawtooth',
+  'sine',
+  'square',
+  'triangle',
+];
+
 function convertSongToArrayBuffer(song: Song): ArrayBuffer {
   const arrayToBufferize = [];
   arrayToBufferize.push(song.tempo); //tempo
@@ -40,7 +47,10 @@ function convertSongToArrayBuffer(song: Song): ArrayBuffer {
   song.tracks.forEach((track: Track) => {
     const usedFrequencies = getUsedNoteFrequencies(track.notes);
     const splitFrequencies = convertFrequenciesTo8BitInt(usedFrequencies);
-    arrayToBufferize.push(usedFrequencies.length); // number of pitches
+    // split waveform info on the left and number of pitches, 0-indexed on the right
+    const waveIndex = waves.findIndex(wave => wave === track.wave);
+    const waveAndNumberOfPitches = (waveIndex << 4) + usedFrequencies.length -1;
+    arrayToBufferize.push(waveAndNumberOfPitches); // both get added
     arrayToBufferize.push(...splitFrequencies); // and both bytes representing each one
     const noteInstructions = getNoteInstructions(track.notes); // get note instructions
     const noteBytes = convertNoteInstructionsTo8BitInt(noteInstructions); // convert them to bytes

@@ -41,7 +41,7 @@ function convertSoundEffectToArrayBuffer(soundEffect: SoundEffect): ArrayBuffer 
     arrayToBufferize.push(offsetGainLevel + offsetIsNoise + offsetTime);
   });
   soundEffect.widthInstructions.forEach(widthInstruction => {
-    const widthInstrucionFlag = 0b1000000;
+    const widthInstrucionFlag = 0b10000000;
     const offsetTime = Math.round((widthInstruction.timeFromLastInstruction) * 10);
     arrayToBufferize.push(widthInstrucionFlag + offsetTime);
   });
