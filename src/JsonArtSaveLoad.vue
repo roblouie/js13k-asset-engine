@@ -11,7 +11,7 @@ import { usePalettes } from '@/palette-maker/palette.composable';
 import { useTiles } from '@/tile-draw/tile.composable';
 import { useSprites } from '@/sprite-maker/sprite.composable';
 import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
-import { Sprite } from "@/sprite-maker/sprite.model";
+import { Sprite } from '@/sprite-maker/sprite.model';
 
 const { palettes } = usePalettes();
 const { tiles } = useTiles();
@@ -32,8 +32,6 @@ function loadJson(event: any) {
       tiles.value = json.tiles;
       sprites.value = json.sprites.map(sprite => Sprite.FromJson(sprite));
       backgrounds.value = json.backgrounds;
-
-      debugger;
     };
     fileReader.readAsText(file);
   }

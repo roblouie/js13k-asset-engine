@@ -271,7 +271,6 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
       finalByteIndex: startingOffset,
     };
   }
-  debugger;
 
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfSoundEffects = dataView.getUint8(0);

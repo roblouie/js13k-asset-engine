@@ -87,7 +87,6 @@ export default defineComponent({
         sprites.value = spriteAsset.data;
         backgrounds.value = backgroundAsset.data;
         songs.value = songsAsset.data;
-        debugger;
         soundEffects.value = soundEffectsAsset.data;
       }
     }

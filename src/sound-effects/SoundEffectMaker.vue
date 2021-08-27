@@ -89,7 +89,7 @@ export default defineComponent({
 
     const { soundEffects } = useSoundEffects();
 
-    const selectedSoundEffectIndex = ref(0);
+    const selectedSoundEffectIndex = ref(-1);
     const selectedSoundEffect = ref<SoundEffect>();
 
     watch(selectedSoundEffectIndex, assignCurrentSoundEffect);
@@ -195,7 +195,7 @@ export default defineComponent({
         .connect(gainNode)
         .connect(audioContext.destination);
 
-      const oscillator = new OscillatorNode(audioContext, { type: 'sine' });
+      const oscillator = new OscillatorNode(audioContext, { type: 'sawtooth' });
       const oscillatorGain = new GainNode(audioContext);
       oscillator.connect(oscillatorGain);
       oscillatorGain.connect(audioContext.destination);
