@@ -310,17 +310,16 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
       } else {
         const isLinearRampTo = ((otherInstruction >> 5) & 0b1) === 1;
         const durationInSeconds = (otherInstruction & 0b11111) / 10;
-        debugger;
         bytePosition++;
         const pitchBytes = dataView.getUint8(bytePosition);
         const pitch = (pitchBytes * 70) + 1;
         pitchInstructions.push({ pitch, durationInSeconds, isLinearRampTo });
       }
-      otherInstructionsParsed ++;
-      bytePosition ++;
+      otherInstructionsParsed++;
+      bytePosition++;
     }
     soundEffects.push({ gainInstructions, widthInstructions, pitchInstructions });
-    soundEffectsParsed ++;
+    soundEffectsParsed++;
   }
 
   return {

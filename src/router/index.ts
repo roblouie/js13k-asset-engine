@@ -4,6 +4,7 @@ import Music from '../Music.vue';
 import SpriteMaker from '@/sprite-maker/SpriteMaker.vue';
 import SoundEffects from '@/sound-effects/SoundEffectMaker.vue';
 import BackgroundMaker from '@/backgrounds/BackgroundMaker.vue';
+import LevelEditor from '@/level-editor/LevelEditor.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -34,6 +35,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/sound-effects',
     name: 'SoundEffects',
     component: SoundEffects,
+  },
+  {
+    path: '/level-editor',
+    name: 'LevelEditor',
+    component: LevelEditor,
   },
 ];
 
