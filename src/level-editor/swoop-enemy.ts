@@ -7,11 +7,11 @@ export class SwoopEnemy extends Enemy {
 
   constructor(gridPosition: number, colorNum: number, isMovingLeft?: boolean) {
     super(gridPosition, 16, colorNum);
-    this.type = `Swoop ${this.isMovingLeft ? 'Left' : 'Right'}`;
-    this.typeNum = isMovingLeft ? 6 : 7;
-
     if (isMovingLeft) {
       this.isMovingLeft = isMovingLeft;
     }
+
+    this.type = `Swoop ${this.isMovingLeft ? 'Left' : 'Right'}`;
+    this.typeNum = isMovingLeft ? 6 : 7;
   }
 }

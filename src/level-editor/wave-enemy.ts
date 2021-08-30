@@ -7,10 +7,11 @@ export class WaveEnemy extends Enemy {
 
   constructor(gridPosition: number, colorNum: number, isMovingLeft?: boolean) {
     super(gridPosition, 16, colorNum);
-    this.type = `Wave ${this.isMovingLeft ? 'Left' : 'Right'}`;
-    this.typeNum = isMovingLeft ? 2 : 3;
     if (isMovingLeft) {
       this.isMovingLeft = isMovingLeft;
     }
+
+    this.type = `Wave ${this.isMovingLeft ? 'Left' : 'Right'}`;
+    this.typeNum = isMovingLeft ? 2 : 3;
   }
 }

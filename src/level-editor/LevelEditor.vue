@@ -66,8 +66,11 @@ import { ref } from 'vue';
 import { EnemyWave } from '@/level-editor/enemy-wave';
 import { StraightEnemy } from '@/level-editor/straight-enemy';
 import { PauseEnemy } from '@/level-editor/pause-enemy';
-import { Sprite } from "@/sprite-maker/sprite.model";
-import { Enemy } from "@/level-editor/enemy";
+import { Sprite } from '@/sprite-maker/sprite.model';
+import { Enemy } from '@/level-editor/enemy';
+import { WaveEnemy } from '@/level-editor/wave-enemy';
+import { ScreenEdgeBounceEnemy } from '@/level-editor/screen-edge-bounce-enemy';
+import { SwoopEnemy } from '@/level-editor/swoop-enemy';
 
 const { levels } = useLevel();
 const currentLevel = ref<Level>(null);
@@ -109,6 +112,25 @@ function addEnemy(position: number) {
     break;
   case 'Pause':
     enemy = new PauseEnemy(position, color.value);
+    break;
+  case 'Wave (left)':
+    debugger;
+    enemy = new WaveEnemy(position, color.value, true);
+    break;
+  case 'Wave (right)':
+    enemy = new WaveEnemy(position, color.value, false);
+    break;
+  case 'ScreenBounce (left)':
+    enemy = new ScreenEdgeBounceEnemy(position, color.value, true);
+    break;
+  case 'ScreenBounce (right)':
+    enemy = new ScreenEdgeBounceEnemy(position, color.value, false);
+    break;
+  case 'Swoop (left)':
+    enemy = new SwoopEnemy(position, color.value, true);
+    break;
+  case 'Swoop (right)':
+    enemy = new SwoopEnemy(position, color.value, false);
     break;
   }
 

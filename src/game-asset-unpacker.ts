@@ -5,10 +5,14 @@ import { Track } from '@/sound/track.model';
 import { NotePosition } from '@/sound/note-position.model';
 import { BackgroundLayer } from '@/backgrounds/background-layer';
 import { SoundEffect } from '@/sound-effects/sound-effect.model';
-import { Level } from "@/level-editor/level";
-import { Enemy } from "@/level-editor/enemy";
-import { EnemyWave } from "@/level-editor/enemy-wave";
-import { StraightEnemy } from "@/level-editor/straight-enemy";
+import { Level } from '@/level-editor/level';
+import { Enemy } from '@/level-editor/enemy';
+import { EnemyWave } from '@/level-editor/enemy-wave';
+import { StraightEnemy } from '@/level-editor/straight-enemy';
+import { PauseEnemy } from '@/level-editor/pause-enemy';
+import { WaveEnemy } from '@/level-editor/wave-enemy';
+import { ScreenEdgeBounceEnemy } from '@/level-editor/screen-edge-bounce-enemy';
+import { SwoopEnemy } from '@/level-editor/swoop-enemy';
 
 interface UnpackedAsset {
   data: any;
@@ -355,19 +359,49 @@ function bytesToLevels(arrayBuffer: ArrayBuffer, startingOffset: number): Unpack
       bytePosition++;
 
       for (let k = 0; k < numberOfEnemies; k++) {
-        const combinedData = dataView.getUint8(bytePosition);// TODO: Split byte to color and type
+        const combinedData = dataView.getUint8(bytePosition);
         bytePosition++;
+
+        debugger;
+
+        const colorNum = combinedData & 0b1111;
+        const typeNum = combinedData >> 4;
 
         const position = dataView.getUint8(bytePosition);
         bytePosition++;
 
-        wave.enemies.push(new StraightEnemy(position, 0));
+        switch (typeNum) {
+        case 0:
+          wave.enemies.push(new StraightEnemy(position, colorNum));
+          break;
+        case 1:
+          wave.enemies.push(new PauseEnemy(position, colorNum));
+          break;
+        case 2:
+          wave.enemies.push(new WaveEnemy(position, colorNum, true));
+          debugger;
+          break;
+        case 3:
+          wave.enemies.push(new WaveEnemy(position, colorNum, false));
+          break;
+        case 4:
+          wave.enemies.push(new ScreenEdgeBounceEnemy(position, colorNum, true));
+          break;
+        case 5:
+          wave.enemies.push(new ScreenEdgeBounceEnemy(position, colorNum, false));
+          break;
+        case 6:
+          wave.enemies.push(new SwoopEnemy(position, colorNum, true));
+          break;
+        case 7:
+          wave.enemies.push(new SwoopEnemy(position, colorNum, false));
+          break;
+        }
       }
 
       level.enemyWaves.push(wave);
     }
     levels.push(level);
-    debugger;
   }
 
   return {
