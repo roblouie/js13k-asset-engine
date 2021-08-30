@@ -15,9 +15,9 @@ export class Sprite {
     this.paletteNumber = paletteNumber;
     this.size = size;
     if (this.width === 2 && this.height === 2) {
-      this.spriteTiles = new Array(4);
+      this.spriteTiles = new Array(4).fill(new SpriteTile(false, false, 0));
     } else {
-      this.spriteTiles = new Array(this.width + this.height - 1);
+      this.spriteTiles = new Array(this.width + this.height - 1).fill(new SpriteTile(false, false, 0));
     }
   }
 
