@@ -38,6 +38,7 @@ import { useSound } from '@/sound/sound.composable';
 import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
 import JsonArtSaveLoad from '@/JsonArtSaveLoad.vue';
 import { useSoundEffects } from '@/sound-effects/sound-effects.composable';
+import { useLevel } from "@/level-editor/level.composable";
 
 export default defineComponent({
   name: 'App',
@@ -50,6 +51,7 @@ export default defineComponent({
     const { backgrounds } = useBackgrounds();
     const { songs } = useSound();
     const { soundEffects } = useSoundEffects();
+    const { levels } = useLevel();
 
     watch(palettes, updateCompressedAssetSize, { deep: true });
     watch(tiles, updateCompressedAssetSize, { deep: true });
@@ -57,10 +59,11 @@ export default defineComponent({
     watch(backgrounds, updateCompressedAssetSize, { deep: true });
     watch(songs, updateCompressedAssetSize, { deep: true });
     watch(soundEffects, updateCompressedAssetSize, { deep: true });
+    watch(levels, updateCompressedAssetSize, { deep: true });
 
 
     async function updateCompressedAssetSize() {
-      const bytes = packGameAssets(palettes.value, tiles.value, sprites.value, backgrounds.value, songs.value, soundEffects.value);
+      const bytes = packGameAssets(palettes.value, tiles.value, sprites.value, backgrounds.value, songs.value, soundEffects.value, levels.value);
       compressedSize.value = await getCompressedSize(bytes);
     }
 
@@ -82,13 +85,14 @@ export default defineComponent({
       if (fileElement.files && fileElement.files[0]) {
         const assetArrayBuffer = await fileToArrayBuffer(fileElement.files[0]);
         compressedSize.value = await getCompressedSize(assetArrayBuffer);
-        const { paletteAsset, tileAsset, spriteAsset, backgroundAsset, songsAsset, soundEffectsAsset } = unpackGameAssets(assetArrayBuffer);
+        const { paletteAsset, tileAsset, spriteAsset, backgroundAsset, songsAsset, soundEffectsAsset, levelAsset } = unpackGameAssets(assetArrayBuffer);
         palettes.value = paletteAsset.data;
         tiles.value = tileAsset.data;
         sprites.value = spriteAsset.data;
         backgrounds.value = backgroundAsset.data;
         songs.value = songsAsset.data;
         soundEffects.value = soundEffectsAsset.data;
+        levels.value = levelAsset.data;
       }
     }
 
@@ -108,7 +112,7 @@ export default defineComponent({
     }
 
     function saveAssets() {
-      const assetBuffer = packGameAssets(palettes.value, tiles.value, sprites.value, backgrounds.value, songs.value, soundEffects.value);
+      const assetBuffer = packGameAssets(palettes.value, tiles.value, sprites.value, backgrounds.value, songs.value, soundEffects.value, levels.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
 

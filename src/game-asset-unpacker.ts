@@ -4,8 +4,11 @@ import { Song } from '@/sound/song.model';
 import { Track } from '@/sound/track.model';
 import { NotePosition } from '@/sound/note-position.model';
 import { BackgroundLayer } from '@/backgrounds/background-layer';
-import { Sound } from '@/sound-effects/sound';
 import { SoundEffect } from '@/sound-effects/sound-effect.model';
+import { Level } from "@/level-editor/level";
+import { Enemy } from "@/level-editor/enemy";
+import { EnemyWave } from "@/level-editor/enemy-wave";
+import { StraightEnemy } from "@/level-editor/straight-enemy";
 
 interface UnpackedAsset {
   data: any;
@@ -19,6 +22,7 @@ export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
   const backgroundAsset = bytesToBackgrounds(arrayBuffer, spriteAsset.finalByteIndex);
   const songsAsset = bytesToSongs(arrayBuffer, backgroundAsset.finalByteIndex);
   const soundEffectsAsset = bytesToSoundEffects(arrayBuffer, songsAsset.finalByteIndex);
+  const levelAsset = bytesToLevels(arrayBuffer, soundEffectsAsset.finalByteIndex);
 
   return {
     paletteAsset,
@@ -27,6 +31,7 @@ export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
     backgroundAsset,
     songsAsset,
     soundEffectsAsset,
+    levelAsset,
   };
 }
 
@@ -320,6 +325,54 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
   return {
     data: soundEffects,
     finalByteIndex: startingOffset + bytePosition,
+  };
+}
+
+function bytesToLevels(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
+  if (startingOffset >= arrayBuffer.byteLength) {
+    return {
+      data: [],
+      finalByteIndex: startingOffset,
+    };
+  }
+
+  const dataView = new DataView(arrayBuffer, startingOffset);
+  const numberOfLevels = dataView.getUint8(0);
+  let bytePosition = 1;
+
+  const levels: Level[] =[];
+
+  for (let i = 0; i < numberOfLevels; i++) {
+    const level = new Level([]);
+
+    const numberOfWaves = dataView.getUint8(bytePosition);
+    bytePosition++;
+
+    for (let j = 0; j < numberOfWaves; j++) {
+      const wave = new EnemyWave([]);
+
+      const numberOfEnemies = dataView.getUint8(bytePosition);
+      bytePosition++;
+
+      for (let k = 0; k < numberOfEnemies; k++) {
+        const combinedData = dataView.getUint8(bytePosition);// TODO: Split byte to color and type
+        bytePosition++;
+
+        const position = dataView.getUint8(bytePosition);
+        bytePosition++;
+
+        wave.enemies.push(new StraightEnemy(position, 0));
+      }
+
+      level.enemyWaves.push(wave);
+    }
+    levels.push(level);
+    debugger;
+  }
+
+  return {
+    data: levels,
+    finalByteIndex: bytePosition,
   };
 }
 

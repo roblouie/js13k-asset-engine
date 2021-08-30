@@ -39,10 +39,10 @@
   <label>
     Color
     <select v-model="color">
-      <option>red</option>
-      <option>green</option>
-      <option>blue</option>
-      <option>purple</option>
+      <option value="0">red</option>
+      <option value="1">green</option>
+      <option value="2">blue</option>
+      <option value="3">purple</option>
     </select>
   </label>
 
@@ -67,12 +67,13 @@ import { EnemyWave } from '@/level-editor/enemy-wave';
 import { StraightEnemy } from '@/level-editor/straight-enemy';
 import { PauseEnemy } from '@/level-editor/pause-enemy';
 import { Sprite } from "@/sprite-maker/sprite.model";
+import { Enemy } from "@/level-editor/enemy";
 
 const { levels } = useLevel();
 const currentLevel = ref<Level>(null);
 const currentWave = ref<EnemyWave>(null);
 const shipType = ref('Straight');
-const color = ref('red');
+const color = ref(0);
 
 // 3 bits for enemy pattern (8 patterns)
 // 2 bits for color (4 colors) Should this be 5 colors? We'd need another bit
@@ -126,7 +127,7 @@ function getColor(position: number) {
   }
 
   const enemy = currentWave.value.enemies.find(enemy => enemy.gridPosition === position);
-  return enemy ? enemy.color : 'white';
+  return enemy ? Enemy.Colors[enemy.colorNum] : 'white';
 }
 
 function loadJson(event: any) {
