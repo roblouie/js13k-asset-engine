@@ -39,10 +39,10 @@
   <label>
     Color
     <select v-model="color">
-      <option>red</option>
-      <option>green</option>
-      <option>blue</option>
-      <option>purple</option>
+      <option value="0">red</option>
+      <option value="1">green</option>
+      <option value="2">blue</option>
+      <option value="3">purple</option>
     </select>
   </label>
 
@@ -66,13 +66,17 @@ import { ref } from 'vue';
 import { EnemyWave } from '@/level-editor/enemy-wave';
 import { StraightEnemy } from '@/level-editor/straight-enemy';
 import { PauseEnemy } from '@/level-editor/pause-enemy';
-import { Sprite } from "@/sprite-maker/sprite.model";
+import { Sprite } from '@/sprite-maker/sprite.model';
+import { Enemy } from '@/level-editor/enemy';
+import { WaveEnemy } from '@/level-editor/wave-enemy';
+import { ScreenEdgeBounceEnemy } from '@/level-editor/screen-edge-bounce-enemy';
+import { SwoopEnemy } from '@/level-editor/swoop-enemy';
 
 const { levels } = useLevel();
 const currentLevel = ref<Level>(null);
 const currentWave = ref<EnemyWave>(null);
 const shipType = ref('Straight');
-const color = ref('red');
+const color = ref(0);
 
 // 3 bits for enemy pattern (8 patterns)
 // 2 bits for color (4 colors) Should this be 5 colors? We'd need another bit
@@ -109,6 +113,25 @@ function addEnemy(position: number) {
   case 'Pause':
     enemy = new PauseEnemy(position, color.value);
     break;
+  case 'Wave (left)':
+    debugger;
+    enemy = new WaveEnemy(position, color.value, true);
+    break;
+  case 'Wave (right)':
+    enemy = new WaveEnemy(position, color.value, false);
+    break;
+  case 'ScreenBounce (left)':
+    enemy = new ScreenEdgeBounceEnemy(position, color.value, true);
+    break;
+  case 'ScreenBounce (right)':
+    enemy = new ScreenEdgeBounceEnemy(position, color.value, false);
+    break;
+  case 'Swoop (left)':
+    enemy = new SwoopEnemy(position, color.value, true);
+    break;
+  case 'Swoop (right)':
+    enemy = new SwoopEnemy(position, color.value, false);
+    break;
   }
 
   const existingIndex = currentWave.value.enemies.findIndex(enemy => enemy.gridPosition === position);
@@ -126,7 +149,7 @@ function getColor(position: number) {
   }
 
   const enemy = currentWave.value.enemies.find(enemy => enemy.gridPosition === position);
-  return enemy ? enemy.color : 'white';
+  return enemy ? Enemy.Colors[enemy.colorNum] : 'white';
 }
 
 function loadJson(event: any) {

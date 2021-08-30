@@ -8,13 +8,16 @@ import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
 import { BackgroundLayer } from '@/backgrounds/background-layer';
 import { useSoundEffects } from '@/sound-effects/sound-effects.composable';
 import { SoundEffect } from '@/sound-effects/sound-effect.model';
+import { useLevel } from "@/level-editor/level.composable";
+import { Level } from "@/level-editor/level";
 
-export function packGameAssets(palettes: string[][], tiles: number[][], sprites: Sprite[], backgrounds: BackgroundLayer[][], songs: Song[], soundEffects: SoundEffect[]): ArrayBuffer {
+export function packGameAssets(palettes: string[][], tiles: number[][], sprites: Sprite[], backgrounds: BackgroundLayer[][], songs: Song[], soundEffects: SoundEffect[], levels: Level[]): ArrayBuffer {
   const { tilesToBytes } = useTiles();
   const { spritesToBytes } = useSprites();
   const { songsToBytes } = useSound();
   const { soundEffectsToBytes } = useSoundEffects();
   const { backgroundsToBytes } = useBackgrounds();
+  const { levelsToBytes } = useLevel();
 
   const palettesBuffer = palettesToBytes(palettes);
   const tilesBuffer = tilesToBytes(tiles);
@@ -22,6 +25,7 @@ export function packGameAssets(palettes: string[][], tiles: number[][], sprites:
   const backgroundsBuffer = backgroundsToBytes(backgrounds);
   const songsBuffer = songsToBytes(songs);
   const soundEffectsBuffer = soundEffectsToBytes(soundEffects);
+  const levelsBuffer = levelsToBytes(levels);
 
   const palettesBytes = new Uint8Array(palettesBuffer);
   const tilesBytes = new Uint8Array(tilesBuffer);
@@ -29,13 +33,16 @@ export function packGameAssets(palettes: string[][], tiles: number[][], sprites:
   const backgroundsBytes = new Uint8Array(backgroundsBuffer);
   const songsBytes = new Uint8Array(songsBuffer);
   const soundEffectsBytes = new Uint8Array(soundEffectsBuffer);
+  const levelsBytes = new Uint8Array(levelsBuffer);
+
   const combinedBytes = new Uint8Array(
     palettesBytes.byteLength
     + tilesBytes.byteLength
     + spriteBytes.byteLength
     + backgroundsBytes.byteLength
     + songsBytes.byteLength
-    + soundEffectsBytes.byteLength,
+    + soundEffectsBytes.byteLength
+    + levelsBytes.byteLength,
   );
 
   combinedBytes.set(palettesBytes);
@@ -45,6 +52,7 @@ export function packGameAssets(palettes: string[][], tiles: number[][], sprites:
 
   combinedBytes.set(songsBytes, palettesBytes.byteLength + tilesBytes.byteLength + spriteBytes.byteLength + backgroundsBytes.byteLength);
   combinedBytes.set(soundEffectsBytes, songsBytes.byteLength + palettesBytes.byteLength + tilesBytes.byteLength + spriteBytes.byteLength + backgroundsBytes.byteLength);
+  combinedBytes.set(levelsBytes, songsBytes.byteLength + palettesBytes.byteLength + tilesBytes.byteLength + spriteBytes.byteLength + backgroundsBytes.byteLength + soundEffectsBytes.byteLength);
 
   return combinedBytes.buffer;
 }

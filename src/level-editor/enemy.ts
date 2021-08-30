@@ -1,12 +1,20 @@
 export abstract class Enemy {
   gridPosition: number;
   size: number;
-  color = '#000000';
+  colorNum: number;
   abstract type: string;
+  abstract typeNum: number;
 
-  protected constructor(gridPosition: number, size: number, color: string) {
+  static Colors = [
+    '#ff0000',
+    '#00ff00',
+    '#0000ff',
+    '#ff00ff',
+  ];
+
+  protected constructor(gridPosition: number, size: number, colorNum: number) {
     this.gridPosition = gridPosition;
     this.size = size;
-    this.color = color;
+    this.colorNum = colorNum;
   }
 }

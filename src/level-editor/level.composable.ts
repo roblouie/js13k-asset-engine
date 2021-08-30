@@ -6,12 +6,13 @@ const levels = ref<Level[]>([]);
 export function useLevel() {
   return {
     levels,
+    levelsToBytes,
   };
 }
 
 function levelsToBytes(levels: Level[]) {
   const waves = levels.map(level => level.enemyWaves);
-  const enemies = waves.flat().map(wave => wave.enemies);
+  const enemies = waves.flat(2).map(wave => wave.enemies).flat(2);
 
   const bytesForNumberOfLevels = 1;
   const bytesForNumberOfWavesPerLevel = levels.length;
@@ -34,11 +35,17 @@ function levelsToBytes(levels: Level[]) {
       byteOffset++;
 
       wave.enemies.forEach(enemy => {
-        // 3 bits for enemy pattern (8 patterns)
-        // 2 bits for color (4 colors) Should this be 5 colors? We'd need another bit
+        const pattern = enemy.typeNum;
+        const color = enemy.colorNum;
+        const combinedData = (pattern << 4) + color;
+        dataView.setUint8(byteOffset, combinedData);
+        byteOffset++;
 
-        // position needs 7 bits
+        dataView.setUint8(byteOffset, enemy.gridPosition);
+        byteOffset++;
       });
     });
   });
+
+  return levelsBuffer;
 }
