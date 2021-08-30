@@ -1,41 +1,53 @@
 <template>
-<div>
+<div style="display: flex">
+  <section class="sprite-chooser">
+    <div @click="selectedSpriteIndex = -1" :class="{selected: selectedSpriteIndex === -1}">Eraser</div>
+    <div
+        class="sprite"
+        :class="{selected: selectedSpriteIndex === spriteIndex}"
+        style="width: 32px; height: 32px;"
+        v-for="(sprite, spriteIndex) in sprites"
+        :key="sprite"
+        @click="selectedSpriteIndex = spriteIndex"
+    >
+      <image-data-icon :sprite="sprite"></image-data-icon>
+    </div>
+  </section>
 
-  <div
-      v-for="(sprite, spriteIndex) in allowedSprites"
-      :key="sprite"
-      @click="selectedSpriteIndex = spriteIndex"
-  >
-    <image-data-icon :sprite="sprite"></image-data-icon>
-  </div>
+  <section>
+    <button @click="addBackground">Add Background</button>
+    <div class="background-selector">
+      <div
+          v-for="(background, backgroundIndex) in backgrounds"
+         :key="backgroundIndex"
+          @click="selectBackground(backgroundIndex)"
+          :class="{ 'selected': selectedBackgroundIndex === backgroundIndex }"
+      >
+        Background: {{ backgroundIndex }}
+      </div>
+    </div>
 
-  <button @click="addBackground">Add Background</button>
-  <div
-      v-for="(background, backgroundIndex) in backgrounds"
-     :key="backgroundIndex"
-      @click="selectBackground(backgroundIndex)"
-      :class="{ 'selected': selectedBackgroundIndex === backgroundIndex }"
-  >
-    Background: {{ backgroundIndex }}
-  </div>
+    <div class="layer-selector">
+      <div
+          v-for="(backgroundLayer, backgroundLayerIndex) in backgrounds[selectedBackgroundIndex]"
+          @click="selectBackgroundLayer(backgroundLayerIndex)"
+          :key="backgroundLayerIndex"
+          :class="{ 'selected': selectedBackgroundLayerIndex === backgroundLayerIndex }"
+      >
+        Layer: {{ backgroundLayerIndex}}
+      </div>
+    </div>
 
-  <div
-      v-for="(backgroundLayer, backgroundLayerIndex) in backgrounds[selectedBackgroundIndex]"
-      @click="selectBackgroundLayer(backgroundLayerIndex)"
-      :key="backgroundLayerIndex"
-      :class="{ 'selected': selectedBackgroundLayerIndex === backgroundLayerIndex }"
-  >
-    Layer: {{ backgroundLayerIndex}}
-  </div>
-
-  <input type="checkbox" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].isSemiTransparent" />
-  <input type="number" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].spriteStartOffset"/>
-
+    <label>
+      Is layer transparent
+    <input type="checkbox" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].isSemiTransparent" />
+    </label>
+  </section>
   <canvas
       ref="builderCanvasElement"
-    width="128"
-    height="256"
-    style="width: 256px; height: 512px;"
+    width="256"
+    height="320"
+    style="width: 512px; height: 640px;"
     @click="placeSprite"
   ></canvas>
 
@@ -43,7 +55,7 @@
     ref="previewCanvasElement"
     width="240"
     height="320"
-    style="width: 480px; height: 640px;"
+    style="width: 240px; height: 320px;"
   ></canvas>
 </div>
 </template>
@@ -77,15 +89,6 @@ export default defineComponent({
     const previewCanvasElement = ref<HTMLCanvasElement | null>(null);
     let previewContext: CanvasRenderingContext2D | null;
 
-    const allowedSprites = computed(() => {
-      if (!backgrounds.value || backgrounds.value.length === 0) {
-        return [];
-      }
-
-      const { spriteStartOffset } = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
-      return sprites.value.slice(spriteStartOffset, spriteStartOffset + 8);
-    });
-
     let interval = 0;
 
     onMounted(() => {
@@ -94,13 +97,9 @@ export default defineComponent({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       previewContext =  previewCanvasElement.value!.getContext('2d')!;
 
-      let yPos1 = -256;
+      let yPos1 = -320;
       let yPos2 = 0;
-      let yPos3 = 256;
-
-      let yPos4 = -128;
-      let yPos5 = 128;
-      let yPos6 = 384;
+      let yPos3 = 320;
 
       interval = window.setInterval(() => {
         previewContext?.clearRect(0, 0, 240, 320);
@@ -108,39 +107,20 @@ export default defineComponent({
         updatePrevewCanvas(yPos2);
         updatePrevewCanvas(yPos3);
 
-        updatePrevewCanvas(yPos4, true);
-        updatePrevewCanvas(yPos5, true);
-        updatePrevewCanvas(yPos6, true);
-
         yPos1++;
         yPos2++;
         yPos3++;
-        yPos4++;
-        yPos5++;
-        yPos6++;
 
-        if (yPos1 >= 512) {
-          yPos1 = -256;
+        if (yPos1 >= 640) {
+          yPos1 = -320;
         }
 
-        if (yPos2 >= 512) {
-          yPos2 = -256;
+        if (yPos2 >= 640) {
+          yPos2 = -320;
         }
 
-        if (yPos3 >= 512) {
-          yPos3 = -256;
-        }
-
-        if (yPos4 >= 512) {
-          yPos4 = -256;
-        }
-
-        if (yPos5 >= 512) {
-          yPos5 = -256;
-        }
-
-        if (yPos6 >= 512) {
-          yPos6 = -256;
+        if (yPos3 >= 640) {
+          yPos3 = -320;
         }
       }, 50);
     });
@@ -154,7 +134,7 @@ export default defineComponent({
     }
 
     function selectBackground(backgroundIndex: number) {
-      canvasContext?.clearRect(0, 0, 128, 256);
+      canvasContext?.clearRect(0, 0, 256, 320);
       previewContext?.clearRect(0, 0, 240, 320);
 
       selectedBackgroundIndex.value = backgroundIndex;
@@ -164,7 +144,7 @@ export default defineComponent({
     function selectBackgroundLayer(backgroundLayerIndex: number) {
       selectedBackgroundLayerIndex.value = backgroundLayerIndex;
 
-      canvasContext?.clearRect(0, 0, 128, 256);
+      canvasContext?.clearRect(0, 0, 256, 320);
       previewContext?.clearRect(0, 0, 240, 320);
 
       drawBackgroundLayerToCanvas(backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value]);
@@ -175,9 +155,15 @@ export default defineComponent({
       const backgroundLayer = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
       const matchingPositionIndex = backgroundLayer.sprites.findIndex(sprite => sprite.position === position);
       if (matchingPositionIndex === -1) {
-        backgroundLayer.sprites.push({ position, spriteIndex: selectedSpriteIndex.value });
+        if (selectedSpriteIndex.value !== -1) {
+          backgroundLayer.sprites.push({ position, spriteIndex: selectedSpriteIndex.value });
+        }
       } else {
-        backgroundLayer.sprites[matchingPositionIndex].spriteIndex = selectedSpriteIndex.value;
+        if (selectedSpriteIndex.value === -1) {
+          backgroundLayer.sprites.splice(matchingPositionIndex, 1);
+        } else {
+          backgroundLayer.sprites[matchingPositionIndex].spriteIndex = selectedSpriteIndex.value;
+        }
       }
 
       drawBackgroundLayerToCanvas(backgroundLayer);
@@ -190,16 +176,15 @@ export default defineComponent({
       const tileX = Math.floor(pixelX / 32);
       const tileY = Math.floor(pixelY / 32);
 
-      return tileY * 4 + tileX;
+      return tileY * 8 + tileX;
     }
 
     function drawBackgroundLayerToCanvas(backgroundLayer: BackgroundLayer) {
-      const { spriteStartOffset } = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
-
+      canvasContext?.clearRect(0, 0, 256, 320);
       backgroundLayer.sprites.forEach(sprite => {
-        const gridX = sprite.position % 4;
-        const gridY = Math.floor(sprite.position / 4);
-        drawSpriteToCanvas(sprites.value[spriteStartOffset + sprite.spriteIndex], gridX * 32, gridY * 32);
+        const gridX = sprite.position % 8;
+        const gridY = Math.floor(sprite.position / 8);
+        drawSpriteToCanvas(sprites.value[sprite.spriteIndex], gridX * 32, gridY * 32);
       });
     }
 
@@ -293,7 +278,6 @@ export default defineComponent({
       previewCanvasElement,
       selectBackground,
       selectBackgroundLayer,
-      allowedSprites,
     };
   },
 });
@@ -315,5 +299,30 @@ canvas {
 
 .selected {
   background-color: green;
+}
+
+.sprite-chooser {
+  width: 75px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.sprite {
+  border: 2px solid white;
+}
+
+.sprite.selected {
+  border: 2px solid green;
+}
+
+.background-selector {
+  border: 1px solid gray;
+  margin: 10px 0;
+}
+
+.layer-selector {
+  border: 1px solid gray;
+  margin: 10px 0;
 }
 </style>

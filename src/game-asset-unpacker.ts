@@ -142,20 +142,15 @@ function bytesToBackgrounds(arrayBuffer: ArrayBuffer, startingOffset: number): U
     bytePosition++;
 
     const metadata = dataView.getUint8(bytePosition);
-    const spriteStartIndex = metadata & 127;
-    const isSemiTransparent = metadata >> 7;
+    const isSemiTransparent = !!metadata;
     bytePosition++;
 
     const backgroundLayer = new BackgroundLayer();
-    backgroundLayer.spriteStartOffset = spriteStartIndex;
-    backgroundLayer.isSemiTransparent = isSemiTransparent === 1;
+    backgroundLayer.isSemiTransparent = isSemiTransparent;
 
     for (let i = 0; i < numberOfSpritesInBackground; i++) {
-      const spriteByte = dataView.getUint8(bytePosition);
-      bytePosition++;
-
-      const position = spriteByte >> 3;
-      const spriteIndex = spriteByte & 0b111;
+      const position = dataView.getUint8(bytePosition++);
+      const spriteIndex = dataView.getUint8(bytePosition++);
       backgroundLayer.sprites.push({ position, spriteIndex });
     }
 
@@ -291,7 +286,7 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
       const gainInstruction = dataView.getUint8(bytePosition);
       const gain = (gainInstruction >> 6) / 3;
       const isWhiteNoise = ((gainInstruction >> 5) & 0b1) === 1;
-      const timeFromLastInstruction = (gainInstruction & 0b11111) / 10;
+      const timeFromLastInstruction = (gainInstruction & 0b11111) / 20;
       gainInstructions.push({ gain, isWhiteNoise, timeFromLastInstruction });
       gainInstructionsParsed ++;
       bytePosition ++;
@@ -305,11 +300,11 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
       const otherInstruction = dataView.getUint8(bytePosition);
       const isWidth = otherInstruction >> 7 === 1;
       if (isWidth) {
-        const timeFromLastInstruction = (otherInstruction & 0b11111) / 10;
+        const timeFromLastInstruction = (otherInstruction & 0b11111) / 20;
         widthInstructions.push({ timeFromLastInstruction, isWidth });
       } else {
         const isLinearRampTo = ((otherInstruction >> 5) & 0b1) === 1;
-        const durationInSeconds = (otherInstruction & 0b11111) / 10;
+        const durationInSeconds = (otherInstruction & 0b11111) / 20;
         bytePosition++;
         const pitchBytes = dataView.getUint8(bytePosition);
         const pitch = (pitchBytes * 70) + 1;

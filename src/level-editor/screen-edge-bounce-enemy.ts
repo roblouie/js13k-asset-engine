@@ -1,8 +1,8 @@
 import { Enemy } from '@/level-editor/enemy';
 
 export class ScreenEdgeBounceEnemy extends Enemy {
-  type: string;
   isMovingLeft = false;
+  type: string;
 
   constructor(gridPosition: number, color: string, isMovingLeft?: boolean) {
     super(gridPosition, 16, color);
