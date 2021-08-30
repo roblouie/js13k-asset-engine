@@ -225,10 +225,9 @@ export default defineComponent({
         });
       });
 
-      oscillator.start();
 
       let totalGainTimePerChanel = [0, 0];
-      let isSeven = false;
+      let isSeven = true;
 
       selectedSoundEffect.value?.gainInstructions.forEach((instruction: SfxGainInstruction) => {
         const index = instruction.isWhiteNoise ? 1 : 0;
@@ -240,12 +239,13 @@ export default defineComponent({
 
       selectedSoundEffect.value?.widthInstructions.forEach((instruction: SfxWidthInstruction) => {
         secondsSinceWidthChange += instruction.timeFromLastInstruction;
-        whiteNoiseCounterWidth.setValueAtTime(isSeven ? 15 : 7,audioContext.currentTime + secondsSinceWidthChange);
+        whiteNoiseCounterWidth.setValueAtTime(isSeven ? 7 : 15,audioContext.currentTime + secondsSinceWidthChange);
         isSeven = !isSeven;
-        return;
       });
 
       gainNodes.forEach(gain=> gain.gain.setValueAtTime(0, audioContext.currentTime + pitchDurationInSeconds));
+
+      oscillator.start();
     }
 
     function saveJson() {

@@ -1,5 +1,4 @@
 <template>
-  FIGURE OUT BIT SIZE TO SEE IF WAVES CAN BE MADE TALLER FOR NO EXTRA SPACE PER ENEMY
   <div>
     <button @click="saveJson">Save JSON</button>
     <input type="file" @change="loadJson"/>
@@ -50,7 +49,7 @@
   <div style="display: flex; width: 480px; height: 640px; flex-wrap: wrap;">
     <div
         class="enemy-position"
-        v-for="index in 70"
+        v-for="index in 126"
         :key="index"
         @click="addEnemy(index - 1)"
         :style="{ backgroundColor: getColor(index - 1) }"
@@ -75,6 +74,10 @@ const currentWave = ref<EnemyWave>(null);
 const shipType = ref('Straight');
 const color = ref('red');
 
+// 3 bits for enemy pattern (8 patterns)
+// 2 bits for color (4 colors) Should this be 5 colors? We'd need another bit
+
+// position needs 7 bits, so we need 2 bytes per enemy
 function addLevel() {
   levels.value.push(new Level([]));
 }
