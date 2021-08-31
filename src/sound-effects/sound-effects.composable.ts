@@ -49,7 +49,7 @@ function convertSoundEffectToArrayBuffer(soundEffect: SoundEffect): ArrayBuffer 
     const linearRampFlag = pitchInstruction.isLinearRampTo ? 1 : 0;
     const offsetLinearRampFlag = linearRampFlag << 5;
     const offsetDuration = Math.round((pitchInstruction.durationInSeconds) * 20);
-    const roundedPitch = Math.round((pitchInstruction.pitch - 1) / 70);
+    const roundedPitch = Math.round(Math.pow(pitchInstruction.pitch, (1/1.7)) - 9);
     arrayToBufferize.push(offsetLinearRampFlag + offsetDuration);
     arrayToBufferize.push(roundedPitch);
   });

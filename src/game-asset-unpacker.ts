@@ -315,7 +315,7 @@ function bytesToSoundEffects(arrayBuffer: ArrayBuffer, startingOffset: number): 
         const durationInSeconds = (otherInstruction & 0b11111) / 20;
         bytePosition++;
         const pitchBytes = dataView.getUint8(bytePosition);
-        const pitch = (pitchBytes * 70) + 1;
+        const pitch = Math.round(Math.pow((pitchBytes + 9), 1.7));
         pitchInstructions.push({ pitch, durationInSeconds, isLinearRampTo });
       }
       otherInstructionsParsed++;
