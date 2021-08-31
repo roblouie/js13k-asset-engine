@@ -117,6 +117,7 @@ export default defineComponent({
       canvasContext.imageSmoothingEnabled = false;
       drawPosition.x = event.offsetX / 20;
       drawPosition.y = event.offsetY / 20;
+      draw(event);
     }
 
     function draw(event: MouseEvent) {
