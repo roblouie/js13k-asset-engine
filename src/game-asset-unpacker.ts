@@ -6,7 +6,6 @@ import { NotePosition } from '@/sound/note-position.model';
 import { BackgroundLayer } from '@/backgrounds/background-layer';
 import { SoundEffect } from '@/sound-effects/sound-effect.model';
 import { Level } from '@/level-editor/level';
-import { Enemy } from '@/level-editor/enemy';
 import { EnemyWave } from '@/level-editor/enemy-wave';
 import { StraightEnemy } from '@/level-editor/straight-enemy';
 import { PauseEnemy } from '@/level-editor/pause-enemy';
@@ -362,8 +361,6 @@ function bytesToLevels(arrayBuffer: ArrayBuffer, startingOffset: number): Unpack
         const combinedData = dataView.getUint8(bytePosition);
         bytePosition++;
 
-        debugger;
-
         const colorNum = combinedData & 0b1111;
         const typeNum = combinedData >> 4;
 
@@ -379,7 +376,6 @@ function bytesToLevels(arrayBuffer: ArrayBuffer, startingOffset: number): Unpack
           break;
         case 2:
           wave.enemies.push(new WaveEnemy(position, colorNum, true));
-          debugger;
           break;
         case 3:
           wave.enemies.push(new WaveEnemy(position, colorNum, false));

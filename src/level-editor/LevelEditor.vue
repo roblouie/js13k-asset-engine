@@ -114,7 +114,6 @@ function addEnemy(position: number) {
     enemy = new PauseEnemy(position, color.value);
     break;
   case 'Wave (left)':
-    debugger;
     enemy = new WaveEnemy(position, color.value, true);
     break;
   case 'Wave (right)':
