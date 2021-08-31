@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div>
+      <button @click="saveJson">Save JSON</button>
+      <input type="file" @change="loadJson"/>
+    </div>
     <Sequencer v-model="selectedTrackNotePositions"/>
     <p>{{ frequenciesUsed?.length }} notes used</p>
     <section class="track-info">
@@ -128,6 +132,37 @@ export default defineComponent({
       startSong(selectedSong.value);
     }
 
+    function loadJson(event: any) {
+      const fileElement = event.target as HTMLInputElement;
+
+      if (fileElement.files && fileElement.files[0]) {
+        const file = fileElement.files[0];
+        const fileReader = new FileReader();
+        fileReader.onload = event => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-ignore
+          const text = event.target.result;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-ignore
+          songs.value = JSON.parse(text);
+        };
+        fileReader.readAsText(file);
+      }
+    }
+
+    function saveJson() {
+      const json = JSON.stringify(songs.value, null, 2);
+
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([json], {
+        type: 'text/plain',
+      }));
+      a.setAttribute('download', 'music.json');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
 
     return {
       selectedSongNumber,
@@ -146,6 +181,9 @@ export default defineComponent({
       deleteSong,
       onSongStart,
       stopSong,
+
+      loadJson,
+      saveJson,
     };
   },
 });
