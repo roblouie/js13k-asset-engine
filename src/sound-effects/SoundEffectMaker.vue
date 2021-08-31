@@ -19,7 +19,7 @@
         <div v-for="(pitch, pitchIndex) in selectedSoundEffect.pitchInstructions" :key="pitchIndex">
           <span>Pitch:</span>
           <select v-model="pitch.pitch">
-            <option v-for="option in getPitchOptions()" :key="option" :value="option">{{option}}</option>
+            <option v-for="option in getPitchOptions()" :key="option.value" :value="option.correspondingPitch">{{option.correspondingPitch.toFixed(0)}}</option>
           </select>
           <span>Duration:</span>
           <select v-model="pitch.durationInSeconds">
@@ -103,9 +103,14 @@ export default defineComponent({
       return options.map((option, index) => index * .05);
     }
 
-    function getPitchOptions() {
+    type PitchOption = { value: number, correspondingPitch: number }
+
+    function getPitchOptions(): PitchOption[] {
       const options = new Array(256).fill(0);
-      return options.map((option, index) => ((index) * 70) + 1).reverse();
+      return options.map((option, index) => {
+        const correspondingPitch = Math.pow(index + 9, 1.7);
+        return { value: index, correspondingPitch: Math.round(correspondingPitch) };
+      }).reverse();
     }
 
     function getGainOptions() {
@@ -128,7 +133,7 @@ export default defineComponent({
       if (!selectedSoundEffect.value) {
         return;
       }
-      selectedSoundEffect.value.pitchInstructions.push({  isLinearRampTo: true, durationInSeconds: 1, pitch: 440 });
+      selectedSoundEffect.value.pitchInstructions.push({  isLinearRampTo: true, durationInSeconds: 1, pitch: 442 });
     }
 
     function addWidthInstruction() {
@@ -208,7 +213,7 @@ export default defineComponent({
       const gainNodes = [oscillatorGain, gainNode];
 
       frequencies.forEach((freq, frequencyIndex) => {
-        const pitchDivider = frequencyIndex === 0 ? 16 : 0.7;
+        const pitchDivider = frequencyIndex === 0 ? 1 : .3;
         pitchDurationInSeconds = 0;
         selectedSoundEffect.value?.pitchInstructions.forEach((instruction: SfxPitchInstruction, index: number) => {
           pitchDurationInSeconds += instruction.durationInSeconds;
