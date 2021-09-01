@@ -98,10 +98,10 @@ export default defineComponent({
 
     function addTile() {
       // Limit to 64 tiles so that when used in sprites one bit can be used for flip X and one for flip Y
-      if (tiles.value.length < 64) {
+      if (tiles.value.length < 256) {
         tiles.value.push(new Array(tileSize * tileSize).fill(0));
       } else {
-        alert('Limited to 64 tiles');
+        alert('Limited to 256 tiles');
       }
     }
 

@@ -97,6 +97,7 @@ function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number): Unpac
   }
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfSprites = dataView.getUint8(0);
+  debugger;
 
   let spritesParsed = 0;
   let bytePosition = 1;
@@ -111,11 +112,14 @@ function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number): Unpac
     const sprite = new Sprite(paletteNumber, size);
 
     for (let i = 0; i < sprite.spriteTiles.length; i++) {
-      const tileByte = dataView.getUint8(bytePosition);
-      const paletteNumber = tileByte & 63;
-      const isFlippedX = ((tileByte >> 6) & 1) === 1;
-      const isFlippedY = (tileByte >> 7) === 1;
-      sprite.spriteTiles[i] = new SpriteTile(isFlippedX, isFlippedY, paletteNumber);
+      const tileNumber = dataView.getUint8(bytePosition);
+      bytePosition++;
+      const flippedBits = dataView.getUint8(bytePosition);
+      bytePosition++;
+
+      const isFlippedX = (flippedBits & 1) === 1;
+      const isFlippedY = (flippedBits >> 1) === 1;
+      sprite.spriteTiles[i] = new SpriteTile(isFlippedX, isFlippedY, tileNumber);
       bytePosition++;
     }
 

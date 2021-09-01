@@ -44,7 +44,10 @@
           @click="selectSprite(spriteIndex)"
           :class="{ 'selected': selectedSprite === spriteIndex }"
       >
+        <button>Up</button>
+        <button>Dn</button>
         {{ spriteIndex }}
+        <image-data-icon :sprite="sprite"></image-data-icon>
       </div>
 
       <button @click="deleteSprite">Delete Sprite</button>
@@ -337,5 +340,10 @@ canvas {
   background-size: 10px 10px;
   background-position: 0 0, 0 5px, 5px -5px, -5px 0;
   background-color: rgb(231, 231, 231);
+}
+
+button {
+  font-size: 8px;
+  padding: 1px;
 }
 </style>
