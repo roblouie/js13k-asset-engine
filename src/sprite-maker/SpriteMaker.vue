@@ -7,7 +7,7 @@
     <div>
       <section
           v-for="(tile, tileIndex) in tiles"
-          :key="tileIndex"
+          :key="tile"
           :class="{ 'selected': selectedTileIndex === tileIndex }"
           @click="selectTile(tileIndex)"
       >
@@ -40,12 +40,12 @@
       <div
           class="tile"
           v-for="(sprite, spriteIndex) in sprites"
-          :key="spriteIndex"
+          :key="sprite"
           @click="selectSprite(spriteIndex)"
           :class="{ 'selected': selectedSprite === spriteIndex }"
       >
-        <button>Up</button>
-        <button>Dn</button>
+        <button @click="moveUp(spriteIndex)">Up</button>
+        <button @click="moveDown(spriteIndex)">Dn</button>
         {{ spriteIndex }}
         <image-data-icon :sprite="sprite"></image-data-icon>
       </div>
@@ -269,6 +269,24 @@ export default defineComponent({
       return chunkedArray;
     }
 
+    function moveUp(spriteIndex: number) {
+      move(spriteIndex, spriteIndex - 1);
+    }
+
+    function moveDown(spriteIndex: number) {
+      move(spriteIndex, spriteIndex + 1);
+    }
+
+    function move(fromIndex: number, toIndex: number) {
+      if (toIndex > sprites.value.length - 1 || toIndex < 0) {
+        return;
+      }
+
+      const element = sprites.value[fromIndex];
+      sprites.value.splice(fromIndex, 1);
+      sprites.value.splice(toIndex, 0, element);
+    }
+
     return {
       selectedTileIndex,
       selectedPaletteIndex,
@@ -291,6 +309,8 @@ export default defineComponent({
       isFlippedY,
       tileSize,
       deleteSprite,
+      moveUp,
+      moveDown,
     };
   },
 });
