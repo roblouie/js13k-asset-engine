@@ -97,7 +97,6 @@ function bytesToSprites(arrayBuffer: ArrayBuffer, startingOffset: number): Unpac
   }
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfSprites = dataView.getUint8(0);
-  debugger;
 
   let spritesParsed = 0;
   let bytePosition = 1;
@@ -153,15 +152,20 @@ function bytesToBackgrounds(arrayBuffer: ArrayBuffer, startingOffset: number): U
     bytePosition++;
 
     const metadata = dataView.getUint8(bytePosition);
-    const isSemiTransparent = !!metadata;
+    const spriteStartIndex = metadata & 127;
+    const isSemiTransparent = metadata >> 7;
     bytePosition++;
 
     const backgroundLayer = new BackgroundLayer();
-    backgroundLayer.isSemiTransparent = isSemiTransparent;
+    backgroundLayer.spriteStartOffset = spriteStartIndex;
+    backgroundLayer.isSemiTransparent = isSemiTransparent === 1;
 
     for (let i = 0; i < numberOfSpritesInBackground; i++) {
-      const position = dataView.getUint8(bytePosition++);
-      const spriteIndex = dataView.getUint8(bytePosition++);
+      const spriteByte = dataView.getUint8(bytePosition);
+      bytePosition++;
+
+      const position = spriteByte >> 3;
+      const spriteIndex = spriteByte & 0b111;
       backgroundLayer.sprites.push({ position, spriteIndex });
     }
 

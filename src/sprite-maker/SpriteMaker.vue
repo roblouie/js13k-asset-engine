@@ -4,7 +4,7 @@
 
   <div class="draw-wrapper">
 
-    <div>
+    <div class="tile-chooser">
       <section
           v-for="(tile, tileIndex) in tiles"
           :key="tile"
@@ -16,7 +16,33 @@
       </section>
     </div>
 
-    <div>
+    <div class="sprite-creator">
+      <select v-model="spriteRatio">
+        <option :value="{ width: 1, height: 1, index: 0 }">1x1</option>
+        <option :value="{ width: 1, height: 2, index: 1 }">1x2</option>
+        <option :value="{ width: 2, height: 1, index: 2 }">2x1</option>
+        <option :value="{ width: 2, height: 2, index: 3 }">2x2</option>
+      </select>
+
+      <section
+          v-for="(palette, paletteIndex) in palettes"
+          :key="paletteIndex"
+          class="palette"
+          @click="selectPalette(paletteIndex)"
+          :class="{ 'selected': selectedPaletteIndex === paletteIndex }"
+      >
+        <div
+            class="color"
+            v-for="(color, colorIndex) in palette"
+            :key="colorIndex" :value="color"
+            :style="{ backgroundColor: color }"
+        />
+      </section>
+
+      <button @click="addSprite">Add Sprite</button>
+    </div>
+
+    <div class="tile-placer">
       <label>
         Place
         <input v-model="tool" type="radio" name="tool" value="place"/>
@@ -53,30 +79,8 @@
       <button @click="deleteSprite">Delete Sprite</button>
     </div>
 
-    <div>
-      <select v-model="spriteRatio">
-        <option :value="{ width: 1, height: 1, index: 0 }">1x1</option>
-        <option :value="{ width: 1, height: 2, index: 1 }">1x2</option>
-        <option :value="{ width: 2, height: 1, index: 2 }">2x1</option>
-        <option :value="{ width: 2, height: 2, index: 3 }">2x2</option>
-      </select>
+    <div style="width: 320px;">
 
-      <section
-          v-for="(palette, paletteIndex) in palettes"
-          :key="paletteIndex"
-          class="palette"
-          @click="selectPalette(paletteIndex)"
-          :class="{ 'selected': selectedPaletteIndex === paletteIndex }"
-      >
-        <div
-            class="color"
-            v-for="(color, colorIndex) in palette"
-            :key="colorIndex" :value="color"
-            :style="{ backgroundColor: color }"
-        />
-      </section>
-
-      <button @click="addSprite">Add Sprite</button>
 
       <canvas
           ref="canvasElement"
@@ -89,7 +93,9 @@
           }"
       >
       </canvas>
-      {{ tilePositionInSprite }}
+      <div>
+        <button @click="changeSpritePalette">Change Sprite Palette to Selected Palette</button>
+      </div>
     </div>
   </div>
   </div>
@@ -287,6 +293,11 @@ export default defineComponent({
       sprites.value.splice(toIndex, 0, element);
     }
 
+    function changeSpritePalette() {
+      sprites.value[selectedSprite.value].paletteNumber = selectedPaletteIndex.value;
+      drawSpriteToCanvas(sprites.value[selectedSprite.value]);
+    }
+
     return {
       selectedTileIndex,
       selectedPaletteIndex,
@@ -311,6 +322,7 @@ export default defineComponent({
       deleteSprite,
       moveUp,
       moveDown,
+      changeSpritePalette,
     };
   },
 });
@@ -338,15 +350,14 @@ section.selected {
   border: 1px solid black;
   padding: 10px;
   display: flex;
-  width: 350px;
-  justify-content: space-evenly;
+  width: 120px;
 }
 
 .color {
   border: 1px solid gray;
-  height: 30px;
-  width: 30px;
-  padding: 5px;
+  height: 20px;
+  width: 3px;
+  padding: 1px;
 }
 
 canvas {

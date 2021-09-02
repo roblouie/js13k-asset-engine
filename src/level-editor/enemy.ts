@@ -6,9 +6,9 @@ export abstract class Enemy {
   abstract typeNum: number;
 
   static Colors = [
-    '#ff0000',
-    '#00ff00',
     '#0000ff',
+    '#00ff00',
+    '#ffff00',
     '#ff00ff',
   ];
 

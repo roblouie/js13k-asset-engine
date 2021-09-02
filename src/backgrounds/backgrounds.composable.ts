@@ -18,7 +18,7 @@ function backgroundsToBytes(backgrounds: BackgroundLayer[][]): ArrayBuffer {
   backgrounds.forEach(backgroundLayers => {
     backgroundLayers.forEach(backgroundLayer => {
       byteSize += 2; // Add one byte for each layer to store how many sprites there are, and one byte for metadata like sprite start index
-      byteSize += (backgroundLayer.sprites.length * 2); // Then each used sprite is two bytes, one for sprite index and one the position in the sprite grid
+      byteSize += backgroundLayer.sprites.length; // Then each used sprite is two bytes, one for sprite index and one the position in the sprite grid
     });
   });
 
@@ -34,13 +34,13 @@ function backgroundsToBytes(backgrounds: BackgroundLayer[][]): ArrayBuffer {
       byteOffset++;
 
       const transparentBit = backgroundLayer.isSemiTransparent ? 1 : 0;
-      dataView.setUint8(byteOffset, transparentBit);
-      byteOffset++;
+      const metadata = (transparentBit << 7) + (backgroundLayer.spriteStartOffset & 127);
+      dataView.setUint8(byteOffset, metadata);
 
       backgroundLayer.sprites.forEach(sprite => {
-        const data = (sprite.position << 8) + sprite.spriteIndex;
-        dataView.setUint16(byteOffset, data);
-        byteOffset+= 2;
+        const byte = ((sprite.position & 0b11111) << 3) + (sprite.spriteIndex & 0b111);
+        dataView.setUint8(byteOffset, byte);
+        byteOffset++;
       });
     });
   });

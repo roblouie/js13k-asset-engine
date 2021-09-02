@@ -6,7 +6,7 @@
         class="sprite"
         :class="{selected: selectedSpriteIndex === spriteIndex}"
         style="width: 32px; height: 32px;"
-        v-for="(sprite, spriteIndex) in sprites"
+        v-for="(sprite, spriteIndex) in allowedSprites"
         :key="sprite"
         @click="selectedSpriteIndex = spriteIndex"
     >
@@ -42,13 +42,14 @@
       Is layer transparent
     <input type="checkbox" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].isSemiTransparent" />
     </label>
+    <input type="number" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].spriteStartOffset"/>
   </section>
   <canvas
       ref="builderCanvasElement"
-    width="256"
-    height="320"
-    style="width: 512px; height: 640px;"
-    @click="placeSprite"
+      width="128"
+      height="256"
+      style="width: 256px; height: 512px;"
+      @click="placeSprite"
   ></canvas>
 
   <canvas
@@ -91,15 +92,28 @@ export default defineComponent({
 
     let interval = 0;
 
+    const allowedSprites = computed(() => {
+      if (!backgrounds.value || backgrounds.value.length === 0) {
+        return [];
+      }
+
+      const { spriteStartOffset } = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
+      return sprites.value.slice(spriteStartOffset, spriteStartOffset + 8);
+    });
+
     onMounted(() => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       canvasContext = builderCanvasElement.value!.getContext('2d')!;
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       previewContext =  previewCanvasElement.value!.getContext('2d')!;
 
-      let yPos1 = -320;
+      let yPos1 = -256;
       let yPos2 = 0;
-      let yPos3 = 320;
+      let yPos3 = 256;
+
+      let yPos4 = -128;
+      let yPos5 = 128;
+      let yPos6 = 384;
 
       interval = window.setInterval(() => {
         previewContext?.clearRect(0, 0, 240, 320);
@@ -107,20 +121,39 @@ export default defineComponent({
         updatePrevewCanvas(yPos2);
         updatePrevewCanvas(yPos3);
 
+        updatePrevewCanvas(yPos4, true);
+        updatePrevewCanvas(yPos5, true);
+        updatePrevewCanvas(yPos6, true);
+
         yPos1++;
         yPos2++;
         yPos3++;
+        yPos4++;
+        yPos5++;
+        yPos6++;
 
-        if (yPos1 >= 640) {
-          yPos1 = -320;
+        if (yPos1 >= 512) {
+          yPos1 = -256;
         }
 
-        if (yPos2 >= 640) {
-          yPos2 = -320;
+        if (yPos2 >= 512) {
+          yPos2 = -256;
         }
 
-        if (yPos3 >= 640) {
-          yPos3 = -320;
+        if (yPos3 >= 512) {
+          yPos3 = -256;
+        }
+
+        if (yPos4 >= 512) {
+          yPos4 = -256;
+        }
+
+        if (yPos5 >= 512) {
+          yPos5 = -256;
+        }
+
+        if (yPos6 >= 512) {
+          yPos6 = -256;
         }
       }, 50);
     });
@@ -134,7 +167,7 @@ export default defineComponent({
     }
 
     function selectBackground(backgroundIndex: number) {
-      canvasContext?.clearRect(0, 0, 256, 320);
+      canvasContext?.clearRect(0, 0, 128, 256);
       previewContext?.clearRect(0, 0, 240, 320);
 
       selectedBackgroundIndex.value = backgroundIndex;
@@ -144,7 +177,7 @@ export default defineComponent({
     function selectBackgroundLayer(backgroundLayerIndex: number) {
       selectedBackgroundLayerIndex.value = backgroundLayerIndex;
 
-      canvasContext?.clearRect(0, 0, 256, 320);
+      canvasContext?.clearRect(0, 0, 128, 256);
       previewContext?.clearRect(0, 0, 240, 320);
 
       drawBackgroundLayerToCanvas(backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value]);
@@ -155,15 +188,9 @@ export default defineComponent({
       const backgroundLayer = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
       const matchingPositionIndex = backgroundLayer.sprites.findIndex(sprite => sprite.position === position);
       if (matchingPositionIndex === -1) {
-        if (selectedSpriteIndex.value !== -1) {
-          backgroundLayer.sprites.push({ position, spriteIndex: selectedSpriteIndex.value });
-        }
+        backgroundLayer.sprites.push({ position, spriteIndex: selectedSpriteIndex.value });
       } else {
-        if (selectedSpriteIndex.value === -1) {
-          backgroundLayer.sprites.splice(matchingPositionIndex, 1);
-        } else {
-          backgroundLayer.sprites[matchingPositionIndex].spriteIndex = selectedSpriteIndex.value;
-        }
+        backgroundLayer.sprites[matchingPositionIndex].spriteIndex = selectedSpriteIndex.value;
       }
 
       drawBackgroundLayerToCanvas(backgroundLayer);
@@ -176,15 +203,17 @@ export default defineComponent({
       const tileX = Math.floor(pixelX / 32);
       const tileY = Math.floor(pixelY / 32);
 
-      return tileY * 8 + tileX;
+      return tileY * 4 + tileX;
     }
 
     function drawBackgroundLayerToCanvas(backgroundLayer: BackgroundLayer) {
       canvasContext?.clearRect(0, 0, 256, 320);
+      const { spriteStartOffset } = backgrounds.value[selectedBackgroundIndex.value][selectedBackgroundLayerIndex.value];
+
       backgroundLayer.sprites.forEach(sprite => {
-        const gridX = sprite.position % 8;
-        const gridY = Math.floor(sprite.position / 8);
-        drawSpriteToCanvas(sprites.value[sprite.spriteIndex], gridX * 32, gridY * 32);
+        const gridX = sprite.position % 4;
+        const gridY = Math.floor(sprite.position / 4);
+        drawSpriteToCanvas(sprites.value[spriteStartOffset + sprite.spriteIndex], gridX * 32, gridY * 32);
       });
     }
 
@@ -278,6 +307,7 @@ export default defineComponent({
       previewCanvasElement,
       selectBackground,
       selectBackgroundLayer,
+      allowedSprites,
     };
   },
 });
