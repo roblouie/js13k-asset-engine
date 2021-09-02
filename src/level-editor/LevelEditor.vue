@@ -25,6 +25,7 @@
   <label>
     Ship Type
    <select v-model="shipType">
+     <option>Erase</option>
      <option>Straight</option>
      <option>Pause</option>
      <option>Wave (left)</option>
@@ -39,10 +40,10 @@
   <label>
     Color
     <select v-model="color">
-      <option value="0">red</option>
-      <option value="1">green</option>
-      <option value="2">blue</option>
-      <option value="3">purple</option>
+      <option :value="0">red</option>
+      <option :value="1">green</option>
+      <option :value="2">blue</option>
+      <option :value="3">purple</option>
     </select>
   </label>
 
@@ -95,7 +96,7 @@ function getText(position: number) {
     return '';
   }
 
-  const enemy = currentWave.value.enemies.find(enemy => enemy.gridPosition === position);
+  const enemy = currentWave.value.enemies.find(enemy => enemy?.gridPosition === position);
   if (enemy) {
     return enemy.type;
   } else {
@@ -104,6 +105,15 @@ function getText(position: number) {
 }
 
 function addEnemy(position: number) {
+  const existingIndex = currentWave.value.enemies.findIndex(enemy => enemy?.gridPosition === position);
+
+  if (shipType.value === 'Erase') {
+    if (existingIndex !== -1) {
+      currentWave.value.enemies.splice(existingIndex, 1);
+    }
+    return;
+  }
+
   let enemy;
 
   switch (shipType.value) {
@@ -133,7 +143,6 @@ function addEnemy(position: number) {
     break;
   }
 
-  const existingIndex = currentWave.value.enemies.findIndex(enemy => enemy.gridPosition === position);
 
   if (existingIndex === -1) {
     currentWave.value.enemies.push(enemy);
@@ -147,7 +156,7 @@ function getColor(position: number) {
     return 'white';
   }
 
-  const enemy = currentWave.value.enemies.find(enemy => enemy.gridPosition === position);
+  const enemy = currentWave.value.enemies.find(enemy => enemy?.gridPosition === position);
   return enemy ? Enemy.Colors[enemy.colorNum] : 'white';
 }
 

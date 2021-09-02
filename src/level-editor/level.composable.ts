@@ -11,7 +11,7 @@ export function useLevel() {
 }
 
 function levelsToBytes(levels: Level[]) {
-  const waves = levels.map(level => level.enemyWaves);
+  const waves = levels.map(level => level.enemyWaves).flat();
   const enemies = waves.flat(2).map(wave => wave.enemies).flat(2);
 
   const bytesForNumberOfLevels = 1;
