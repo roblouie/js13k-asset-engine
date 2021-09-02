@@ -156,9 +156,15 @@ function convertBitmap(bitmapArrayBuffer: ArrayBuffer, fileNumber: number) {
     const tileWidthRows = chunkArrayInGroups(colorIndexes, 16);
     let tile1Values = [];
     let tile2Values = [];
-    const [tile1Rows, tile2Rows] = chunkArrayInGroups(tileWidthRows, 16);
-    const tile1Values = tile1Rows.flat(2);
-    const tile2Values = tile2Rows.flat(2);
+
+    tileWidthRows.forEach((tileRow, index) => {
+      if (index % 2 === 0) {
+        tile1Values.push(...tileRow);
+      } else {
+        tile2Values.push(...tileRow);
+      }
+    });
+
     tiles.value.push(tile1Values, tile2Values);
     const tile1 = new SpriteTile(false, false, tiles.value.length - 2);
     const tile2 = new SpriteTile(false, false, tiles.value.length - 1);
