@@ -142,6 +142,7 @@ function convertBitmap(bitmapArrayBuffer: ArrayBuffer, fileNumber: number) {
     tiles.value.push(colorIndexes);
     const spriteTile = new SpriteTile(false, false, tiles.value.length - 1);
     sprite.spriteTiles = [spriteTile];
+    convertLog.value.push(`File ${fileNumber}: Created 1 Tile`);
   }
 
   if (sprite.size === 1) {
@@ -150,6 +151,7 @@ function convertBitmap(bitmapArrayBuffer: ArrayBuffer, fileNumber: number) {
     const tile1 = new SpriteTile(false, false, tiles.value.length - 2);
     const tile2 = new SpriteTile(false, false, tiles.value.length - 1);
     sprite.spriteTiles = [tile1, tile2];
+    convertLog.value.push(`File ${fileNumber}: Created 2 Tiles`);
   }
 
   if (sprite.size === 2) {
@@ -169,6 +171,7 @@ function convertBitmap(bitmapArrayBuffer: ArrayBuffer, fileNumber: number) {
     const tile1 = new SpriteTile(false, false, tiles.value.length - 2);
     const tile2 = new SpriteTile(false, false, tiles.value.length - 1);
     sprite.spriteTiles = [tile1, tile2];
+    convertLog.value.push(`File ${fileNumber}: Created 2 Tiles`);
   }
 
   if (sprite.size === 3) {
@@ -205,9 +208,13 @@ function convertBitmap(bitmapArrayBuffer: ArrayBuffer, fileNumber: number) {
     const tile3 = new SpriteTile(false, false, tiles.value.length - 2);
     const tile4 = new SpriteTile(false, false, tiles.value.length - 1);
     sprite.spriteTiles = [tile1, tile2, tile3, tile4];
+
+    convertLog.value.push(`File ${fileNumber}: Created 2 Tiles`);
   }
 
   sprites.value.push(sprite);
+  convertLog.value.push(`File ${fileNumber}: Sprite Imported!!`);
+  convertLog.value.push('----------------------------');
 }
 
 async function loadBitmaps(event: any) {

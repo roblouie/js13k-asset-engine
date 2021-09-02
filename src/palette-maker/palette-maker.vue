@@ -8,6 +8,7 @@
         @click="selectPalette(paletteIndex)"
         :class="{ 'selected': selectedPaletteIndex === paletteIndex }"
     >
+      <button @click="deletePalette(paletteIndex)">Delete</button>
       <input
           type="color"
           v-for="(color, colorIndex) in palette"
@@ -21,6 +22,8 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { usePalettes } from '@/palette-maker/palette.composable';
+import { useSprites } from "@/sprite-maker/sprite.composable";
+import { Sprite } from "@/sprite-maker/sprite.model";
 
 export default defineComponent({
   name: 'palette-maker',
@@ -48,12 +51,30 @@ export default defineComponent({
       selectedPaletteIndex.value = paletteIndex;
     }
 
+    function deletePalette(paletteIndex: number) {
+      const { sprites } = useSprites();
+      const allPalettesNumbers = sprites.value.map((sprite: Sprite) => sprite.paletteNumber);
+      const spriteIndexUsingPalette = allPalettesNumbers.findIndex((paletteNum: number) => paletteNum === selectedPaletteIndex.value);
+      if (spriteIndexUsingPalette !== -1) {
+        alert(`This palette is used in sprite ${spriteIndexUsingPalette}. Change that sprites palette or delete it then try again`);
+        return;
+      } else {
+        palettes.value.splice(selectedPaletteIndex.value, 1);
+        sprites.value.forEach((sprite: Sprite) => {
+          if (sprite.paletteNumber > selectedPaletteIndex.value) {
+            sprite.paletteNumber--;
+          }
+        });
+      }
+    }
+
     return {
       palettes,
       addPalette,
       saveColorChange,
       selectPalette,
       selectedPaletteIndex,
+      deletePalette,
     };
   },
 });

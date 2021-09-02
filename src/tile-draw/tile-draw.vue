@@ -60,6 +60,9 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useTiles } from '@/tile-draw/tile.composable';
 import ImageDataIcon from '@/tile-draw/image-data-icon.vue';
+import { useSprites } from "@/sprite-maker/sprite.composable";
+import { SpriteTile } from "@/sprite-maker/sprite-tile.model";
+import { Sprite } from "@/sprite-maker/sprite.model";
 
 export default defineComponent({
   name: 'tile-draw',
@@ -148,7 +151,22 @@ export default defineComponent({
     }
 
     function deleteTile() {
+      const { sprites } = useSprites();
+      const allSpriteTiles = sprites.value.flatMap((sprite: Sprite) => sprite.spriteTiles);
+      const existingIndex = allSpriteTiles.map((tile: SpriteTile) => tile.tileNumber).findIndex((tileNumber: number) => tileNumber === selectedTileIndex.value);
+
+      if (existingIndex !== -1) {
+        alert(`That tile is used in sprite ${existingIndex}, use a different tile in that sprite, or delete the sprite, and try again.`);
+        return;
+      }
+
       tiles.value.splice(selectedTileIndex.value, 1);
+
+      allSpriteTiles.forEach((spriteTile: SpriteTile) => {
+        if (spriteTile.tileNumber > selectedTileIndex.value) {
+          spriteTile.tileNumber--;
+        }
+      });
     }
 
     function moveUp(tileIndex: number) {
