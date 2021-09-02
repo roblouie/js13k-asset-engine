@@ -49,15 +49,17 @@ function spritesToBytes(sprites: Sprite[]): ArrayBuffer {
     dataView.setUint8(byteOffset, spriteByteData);
     byteOffset++;
 
-    sprite.spriteTiles.forEach(spriteTile => {
-      const isFlippedXBit = spriteTile.isFlippedX ? 0b1 : 0b0;
-      const isFlippedYBit = spriteTile.isFlippedY ? 0b1 : 0b0;
-      const flippedBits = (isFlippedXBit << 1) + isFlippedYBit;
-      dataView.setUint8(byteOffset, spriteTile.tileNumber);
-      byteOffset++;
+    sprite.spriteTiles.forEach((spriteTile, index) => {
+      if (index < 4) {
+        const isFlippedXBit = spriteTile.isFlippedX ? 0b1 : 0b0;
+        const isFlippedYBit = spriteTile.isFlippedY ? 0b1 : 0b0;
+        const flippedBits = (isFlippedXBit << 1) + isFlippedYBit;
+        dataView.setUint8(byteOffset, spriteTile.tileNumber);
+        byteOffset++;
 
-      dataView.setUint8(byteOffset, flippedBits);
-      byteOffset++;
+        dataView.setUint8(byteOffset, flippedBits);
+        byteOffset++;
+      }
     });
   });
 

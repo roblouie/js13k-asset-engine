@@ -40,9 +40,9 @@
   <label>
     Color
     <select v-model="color">
-      <option :value="0">red</option>
+      <option :value="0">blue</option>
       <option :value="1">green</option>
-      <option :value="2">blue</option>
+      <option :value="2">yellow</option>
       <option :value="3">purple</option>
     </select>
   </label>

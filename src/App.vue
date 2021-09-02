@@ -9,8 +9,6 @@
     <JsonArtSaveLoad></JsonArtSaveLoad>
   </div>
 
-
-
   <menu>
     <router-link to="/">Home</router-link>
     <router-link to="/tile-draw">Tile Draw</router-link>
@@ -19,6 +17,7 @@
     <router-link to="/music">Music</router-link>
     <router-link to="/sound-effects">Sound Effects</router-link>
     <router-link to="level-editor">Level Editor</router-link>
+    <router-link to="/import">Import</router-link>
   </menu>
 
   <router-view></router-view>
@@ -39,6 +38,7 @@ import { useBackgrounds } from '@/backgrounds/backgrounds.composable';
 import JsonArtSaveLoad from '@/JsonArtSaveLoad.vue';
 import { useSoundEffects } from '@/sound-effects/sound-effects.composable';
 import { useLevel } from "@/level-editor/level.composable";
+import { fileToArrayBuffer } from "@/shared/file-helpers";
 
 export default defineComponent({
   name: 'App',
@@ -96,20 +96,7 @@ export default defineComponent({
       }
     }
 
-    function fileToArrayBuffer(file: File): Promise<ArrayBuffer> {
-      const fileReader = new FileReader();
 
-      return new Promise((resolve, reject) => {
-        fileReader.onload = () => resolve(fileReader.result as ArrayBuffer);
-
-        fileReader.onerror = () => {
-          fileReader.abort();
-          reject(new DOMException('Error parsing file'));
-        };
-
-        fileReader.readAsArrayBuffer(file);
-      });
-    }
 
     function saveAssets() {
       const assetBuffer = packGameAssets(palettes.value, tiles.value, sprites.value, backgrounds.value, songs.value, soundEffects.value, levels.value);

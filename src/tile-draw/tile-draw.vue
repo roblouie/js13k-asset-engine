@@ -2,7 +2,7 @@
   <div>
   <section
       v-for="(palette, paletteIndex) in palettes"
-      :key="paletteIndex"
+      :key="palette"
       class="palette"
       @click="selectPalette(paletteIndex)"
       :class="{ 'selected': selectedPaletteIndex === paletteIndex }"
@@ -10,7 +10,7 @@
     <div
         class="color"
         v-for="(color, colorIndex) in palette"
-        :key="colorIndex" :value="color"
+        :key="color" :value="color"
         @click="selectColorIndex(colorIndex)"
         :style="{ backgroundColor: color }"
         :class="{ 'selected': selectedColorIndex === colorIndex }"
@@ -24,13 +24,17 @@
 
       <section
           v-for="(tile, tileIndex) in tiles"
-          :key="tileIndex"
+          :key="tile"
           :class="{ 'selected': selectedTileIndex === tileIndex }"
           @click="selectTile(tileIndex)"
       >
+        <button @click="moveUp(tileIndex)">Up</button>
+        <button @click="moveDown(tileIndex)">Dn</button>
         {{ tileIndex }}
         <image-data-icon :tile="tile"></image-data-icon>
       </section>
+
+      <button @click="deleteTile">Remove Tile</button>
     </div>
 
     <div>
@@ -143,6 +147,28 @@ export default defineComponent({
       isDrawing = false;
     }
 
+    function deleteTile() {
+      tiles.value.splice(selectedTileIndex.value, 1);
+    }
+
+    function moveUp(tileIndex: number) {
+      move(tileIndex, tileIndex - 1);
+    }
+
+    function moveDown(tileIndex: number) {
+      move(tileIndex, tileIndex + 1);
+    }
+
+    function move(fromIndex: number, toIndex: number) {
+      if (toIndex > tiles.value.length - 1 || toIndex < 0) {
+        return;
+      }
+
+      const element = tiles.value[fromIndex];
+      tiles.value.splice(fromIndex, 1);
+      tiles.value.splice(toIndex, 0, element);
+    }
+
     return {
       selectPalette,
       selectedPaletteIndex,
@@ -158,6 +184,9 @@ export default defineComponent({
       selectTile,
       selectedTileIndex,
       coordinates,
+      deleteTile,
+      moveUp,
+      moveDown,
     };
   },
 });
@@ -207,5 +236,10 @@ canvas {
 .draw-wrapper {
   display: flex;
   justify-content: space-evenly;
+}
+
+button {
+  font-size: 8px;
+  padding: 1px;
 }
 </style>
