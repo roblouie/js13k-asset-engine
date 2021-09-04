@@ -8,7 +8,7 @@ class WNP extends AudioWorkletProcessor {
   constructor() {
     super();
 
-    this.linearFeedbackShift = 0x7fff;
+    this.linearFeedbackShift = 0x4626;
     this.sampleRate = 44100;
     this.samplesElapsed = 0;
   }

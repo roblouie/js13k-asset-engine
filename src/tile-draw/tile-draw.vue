@@ -104,7 +104,7 @@ export default defineComponent({
     }
 
     function addTile() {
-      // Limit to 64 tiles so that when used in sprites one bit can be used for flip X and one for flip Y
+      // Limit to 256 tiles so that when used in sprites one bit can be used for flip X and one for flip Y
       if (tiles.value.length < 256) {
         tiles.value.push(new Array(tileSize * tileSize).fill(0));
       } else {
@@ -153,7 +153,12 @@ export default defineComponent({
     function deleteTile() {
       const { sprites } = useSprites();
       const allSpriteTiles = sprites.value.flatMap((sprite: Sprite) => sprite.spriteTiles);
-      const existingIndex = allSpriteTiles.map((tile: SpriteTile) => tile.tileNumber).findIndex((tileNumber: number) => tileNumber === selectedTileIndex.value);
+      const existingIndex = sprites.value.findIndex((sprite: Sprite) => {
+        const spriteTileNumbers = sprite.spriteTiles.map((spriteTile: SpriteTile) => spriteTile.tileNumber);
+        return spriteTileNumbers.includes(selectedTileIndex.value);
+      });
+
+      allSpriteTiles.map((tile: SpriteTile) => tile.tileNumber).findIndex((tileNumber: number) => tileNumber === selectedTileIndex.value);
 
       if (existingIndex !== -1) {
         alert(`That tile is used in sprite ${existingIndex}, use a different tile in that sprite, or delete the sprite, and try again.`);
