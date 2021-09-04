@@ -48,7 +48,7 @@ class WNP extends AudioWorkletProcessor {
   }
 
   process (inputs, outputs, parameters) {
-    const samplesUntilNextValue = this.44100 / parameters.changesPerSecond[0];
+    const samplesUntilNextValue = this.sampleRate / parameters.changesPerSecond[0];
     const output = outputs[0];
 
     output.forEach(channel => {
