@@ -45,6 +45,7 @@
     <input type="number" v-if="backgrounds && backgrounds.length > 0" v-model="backgrounds[selectedBackgroundIndex][selectedBackgroundLayerIndex].spriteStartOffset"/>
   </section>
   <canvas
+      class="background-canvas"
       ref="builderCanvasElement"
       width="128"
       height="256"
@@ -53,6 +54,7 @@
   ></canvas>
 
   <canvas
+      class="background-canvas"
     ref="previewCanvasElement"
     width="240"
     height="320"
@@ -190,7 +192,11 @@ export default defineComponent({
       if (matchingPositionIndex === -1) {
         backgroundLayer.sprites.push({ position, spriteIndex: selectedSpriteIndex.value });
       } else {
-        backgroundLayer.sprites[matchingPositionIndex].spriteIndex = selectedSpriteIndex.value;
+        if (selectedSpriteIndex.value === -1) {
+          backgroundLayer.sprites.splice(matchingPositionIndex, 1);
+        } else {
+          backgroundLayer.sprites[matchingPositionIndex].spriteIndex = selectedSpriteIndex.value;
+        }
       }
 
       drawBackgroundLayerToCanvas(backgroundLayer);
@@ -325,6 +331,11 @@ canvas {
   background-size: 10px 10px;
   background-position: 0 0, 0 5px, 5px -5px, -5px 0;
   background-color: rgb(231, 231, 231);
+}
+
+.background-canvas {
+  background-color: black;
+  background-image: none;
 }
 
 .selected {

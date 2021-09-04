@@ -346,6 +346,21 @@ section.selected {
   justify-content: space-evenly;
 }
 
+.tile-chooser {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.sprite-creator {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.tile-placer {
+  max-height: 70vh;
+  overflow: auto;
+}
+
 .palette {
   border: 1px solid black;
   padding: 10px;
