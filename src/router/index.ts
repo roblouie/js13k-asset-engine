@@ -6,6 +6,7 @@ import SoundEffects from '@/sound-effects/SoundEffectMaker.vue';
 import BackgroundMaker from '@/backgrounds/BackgroundMaker.vue';
 import LevelEditor from '@/level-editor/LevelEditor.vue';
 import Import from '@/import/Import.vue';
+import Merge from '@/merge-assets/MergeAssets.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -46,6 +47,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/import',
     name: 'Import',
     component: Import,
+  },
+  {
+    path: '/merge-convert',
+    name: 'MergeConvert',
+    component: Merge,
   },
 ];
 

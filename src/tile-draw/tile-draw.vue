@@ -20,7 +20,8 @@
   <div class="draw-wrapper">
 
     <div>
-      <button @click="addTile">Add Tile</button>
+      <button @click="addTile(8)">Add 8 Color Tile</button>
+      <button @click="addTile(16)">Add 16 Color Tile</button>
 
       <section
           v-for="(tile, tileIndex) in tiles"
@@ -84,7 +85,7 @@ export default defineComponent({
     let isDrawing = false;
     const currentPixel = ref(0);
     const coordinates = ref({ x: 0, y: 0 });
-    const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes } = useTiles();
+    const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes, tileSplitIndex } = useTiles();
 
     onMounted(() => {
       if (canvasElement.value) {
@@ -103,7 +104,10 @@ export default defineComponent({
       selectedColorIndex.value = colorIndex;
     }
 
-    function addTile() {
+    function addTile(numberOfColors: 8 | 16) {
+      if (numberOfColors === 8) {
+        tileSplitIndex.value++;
+      }
       // Limit to 256 tiles so that when used in sprites one bit can be used for flip X and one for flip Y
       if (tiles.value.length < 256) {
         tiles.value.push(new Array(tileSize * tileSize).fill(0));
@@ -116,7 +120,6 @@ export default defineComponent({
       selectedTileIndex.value = index;
       const imageData = tileToImageData(tiles.value[selectedTileIndex.value], props.palettes[selectedPaletteIndex.value]);
       canvasContext.putImageData(imageData, 0, 0);
-      tilesToBytes(tiles.value);
     }
 
     function startDrawing(event: MouseEvent) {

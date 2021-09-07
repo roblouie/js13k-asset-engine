@@ -2,6 +2,7 @@ import { ref } from 'vue';
 
 const tileSize = 16;
 const tiles = ref<number[][]>([]);
+const tileSplitIndex = ref(0);
 
 export function useTiles(): any {
   return {
@@ -10,16 +11,18 @@ export function useTiles(): any {
     tileToImageData,
     drawToTile,
     tilesToBytes,
+    tileSplitIndex,
   };
 }
 
-function tilesToBytes(tiles: number[][]): ArrayBuffer {
+function tilesToBytes(tiles: number[][], tileSplitIndex: number): ArrayBuffer {
   const numberOfTiles = tiles.length;
   const numberOfBytes = (numberOfTiles * tileSize * tileSize) / 2;
-  const tileBuffer = new ArrayBuffer(numberOfBytes + 1);
+  const tileBuffer = new ArrayBuffer(numberOfBytes + 2);
 
   const dataView = new DataView(tileBuffer);
   dataView.setUint8(0, numberOfTiles);
+  dataView.setUint8(1, tileSplitIndex);
 
   const flatTiles = tiles.flat();
 
@@ -28,7 +31,7 @@ function tilesToBytes(tiles: number[][]): ArrayBuffer {
     const secondPixel = flatTiles[i + 1];
 
     const byte = firstPixel + (secondPixel << 4);
-    const byteIndex = (i / 2) + 1;
+    const byteIndex = (i / 2) + 2;
     dataView.setUint8(byteIndex, byte);
   }
 

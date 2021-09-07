@@ -41,12 +41,15 @@ export function unpackGameAssets(arrayBuffer: ArrayBuffer) {
 function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): UnpackedAsset {
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfPalettes = dataView.getUint8(0);
-  const paletteSize = 16 * 3; // sixteen colors, three bytes per color
-  const totalPalettesByteSize = (numberOfPalettes * paletteSize) + 1;
+  const paletteSplitIndex = dataView.getUint8(1);
+  const sixteenColorPaletteSize = 16 * 3 * paletteSplitIndex; // sixteen colors, three bytes per color
+  const eightColorPaletteSize = 8 * 3 * (numberOfPalettes - paletteSplitIndex);
+  const totalPalettesByteSize = sixteenColorPaletteSize + eightColorPaletteSize + 2;
 
-  const palettes = [];
+  const sixteenBitPalettes = [];
+  let byteOffset = 2;
 
-  for (let byteOffset = 1; byteOffset < totalPalettesByteSize; byteOffset += 3) {
+  while (byteOffset < sixteenColorPaletteSize) {
     const byte0 = dataView.getUint8(byteOffset);
     const byte1 = dataView.getUint8(byteOffset + 1);
     const byte2 = dataView.getUint8(byteOffset + 2);
@@ -55,13 +58,33 @@ function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): Unpacked
     const byte1String = byte1.toString(16).padStart(2, '0');
     const byte2String = byte2.toString(16).padStart(2, '0');
 
-    palettes.push('#' + byte0String + byte1String + byte2String);
+    sixteenBitPalettes.push('#' + byte0String + byte1String + byte2String);
+    byteOffset += 3;
   }
 
-  const paletteData = chunkArrayInGroups(palettes, 16);
+  const paletteData = chunkArrayInGroups(sixteenBitPalettes, 16);
+
+  const eightBitPalettes = [];
+
+  while (byteOffset < totalPalettesByteSize) {
+    const byte0 = dataView.getUint8(byteOffset);
+    const byte1 = dataView.getUint8(byteOffset + 1);
+    const byte2 = dataView.getUint8(byteOffset + 2);
+
+    const byte0String = byte0.toString(16).padStart(2, '0');
+    const byte1String = byte1.toString(16).padStart(2, '0');
+    const byte2String = byte2.toString(16).padStart(2, '0');
+
+    eightBitPalettes.push('#' + byte0String + byte1String + byte2String);
+    byteOffset += 3;
+  }
+
+  const eightBitPaletteData = chunkArrayInGroups(eightBitPalettes, 8);
+
+  paletteData.push(...eightBitPaletteData);
 
   return {
-    data: paletteData,
+    data: { paletteData, paletteSplitIndex },
     finalByteIndex: startingOffset + totalPalettesByteSize,
   };
 }
@@ -69,21 +92,45 @@ function bytesToPalettes(arrayBuffer: ArrayBuffer, startingOffset = 0): Unpacked
 function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): UnpackedAsset {
   const dataView = new DataView(arrayBuffer, startingOffset);
   const numberOfTiles = dataView.getUint8(0);
-  const totalTilesByteSize = (numberOfTiles * 128) + 1;
+  const tileSplitIndex = dataView.getUint8(1);
+
+  const sixteenColorTileSize = 128 * tileSplitIndex; // 256 pixels with half a byte per color === 128
+  const eightColorTileSize = 86 * (numberOfTiles - tileSplitIndex); // 256 pixels with a third of a byte per color === 96
+  const totalTilesByteSize = sixteenColorTileSize + eightColorTileSize + 2;
 
   const rawTileValues: number[] = [];
+  let byteOffset = 2;
 
-  for (let byteOffset = 1; byteOffset < totalTilesByteSize; byteOffset++) {
+  while (byteOffset < (sixteenColorTileSize + 2)) {
     const byte = dataView.getUint8(byteOffset);
+    byteOffset++;
     const firstValue = byte & 0xf;
     const secondValue = (byte >> 4) & 0xf;
     rawTileValues.push(firstValue, secondValue);
   }
 
+  while (byteOffset < totalTilesByteSize) {
+    debugger;
+    const eightPixelData = dataView.getUint32(byteOffset, true);
+    byteOffset += 3;
+
+    const firstPixel = eightPixelData & 0b111;
+    const secondPixel = (eightPixelData >> 3) & 0b111;
+    const thirdPixel = (eightPixelData >> 6) & 0b111;
+    const fourthPixel = (eightPixelData >> 9) & 0b111;
+
+    const fifthPixel = (eightPixelData >> 12) & 0b111;
+    const sixthPixel = (eightPixelData >> 15) & 0b111;
+    const seventhPixel = (eightPixelData >> 18) & 0b111;
+    const eighthPixel = (eightPixelData >> 21) & 0b111;
+
+    rawTileValues.push(firstPixel, secondPixel, thirdPixel, fourthPixel, fifthPixel, sixthPixel, seventhPixel, eighthPixel);
+  }
+
   const tileData = chunkArrayInGroups(rawTileValues, 256);
 
   return {
-    data: tileData,
+    data: { tileData, tileSplitIndex },
     finalByteIndex: startingOffset + totalTilesByteSize,
   };
 }

@@ -45,8 +45,8 @@ export default defineComponent({
   components: { JsonArtSaveLoad },
   setup() {
     const compressedSize = ref(0);
-    const { palettes } = usePalettes();
-    const { tiles } = useTiles();
+    const { palettes, paletteSplitIndex } = usePalettes();
+    const { tiles, tileSplitIndex } = useTiles();
     const { sprites } = useSprites();
     const { backgrounds } = useBackgrounds();
     const { songs } = useSound();
@@ -63,7 +63,7 @@ export default defineComponent({
 
 
     async function updateCompressedAssetSize() {
-      const bytes = packGameAssets(palettes.value, tiles.value, sprites.value, backgrounds.value, songs.value, soundEffects.value, levels.value);
+      const bytes = packGameAssets(palettes.value, paletteSplitIndex.value, tiles.value, tileSplitIndex.value, sprites.value, backgrounds.value, songs.value, soundEffects.value, levels.value);
       compressedSize.value = await getCompressedSize(bytes);
     }
 
@@ -86,8 +86,10 @@ export default defineComponent({
         const assetArrayBuffer = await fileToArrayBuffer(fileElement.files[0]);
         compressedSize.value = await getCompressedSize(assetArrayBuffer);
         const { paletteAsset, tileAsset, spriteAsset, backgroundAsset, songsAsset, soundEffectsAsset, levelAsset } = unpackGameAssets(assetArrayBuffer);
-        palettes.value = paletteAsset.data;
-        tiles.value = tileAsset.data;
+        palettes.value = paletteAsset.data.paletteData;
+        paletteSplitIndex.value = paletteAsset.data.paletteSplitIndex;
+        tiles.value = tileAsset.data.tileData;
+        tileSplitIndex.value = tileAsset.data.tileSplitIndex;
         sprites.value = spriteAsset.data;
         backgrounds.value = backgroundAsset.data;
         songs.value = songsAsset.data;
@@ -99,7 +101,7 @@ export default defineComponent({
 
 
     function saveAssets() {
-      const assetBuffer = packGameAssets(palettes.value, tiles.value, sprites.value, backgrounds.value, songs.value, soundEffects.value, levels.value);
+      const assetBuffer = packGameAssets(palettes.value, paletteSplitIndex.value, tiles.value, tileSplitIndex.value, sprites.value, backgrounds.value, songs.value, soundEffects.value, levels.value);
       saveFileToDevice(assetBuffer, 'assets');
     }
 

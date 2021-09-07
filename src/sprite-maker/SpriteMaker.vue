@@ -42,6 +42,7 @@
       <button @click="addSprite">Add Sprite</button>
     </div>
 
+    <div>
     <div class="tile-placer">
       <label>
         Place
@@ -76,7 +77,8 @@
         <image-data-icon :sprite="sprite"></image-data-icon>
       </div>
 
-      <button @click="deleteSprite">Delete Sprite</button>
+    </div>
+    <button @click="deleteSprite">Delete Sprite</button>
     </div>
 
     <div style="width: 320px;">

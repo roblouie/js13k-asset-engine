@@ -1,6 +1,7 @@
 <template>
   <div>
-    <button @click="addPalette">Add Palette</button>
+    <button @click="addPalette(8)">Add 8 Color Palette</button>
+    <button @click="addPalette(16)">Add 16 Color Palette</button>
     <section
         v-for="(palette, paletteIndex) in palettes"
         :key="paletteIndex"
@@ -31,15 +32,18 @@ export default defineComponent({
     modelValue: Array,
   },
   setup(props: any, { emit }) {
-    const { selectedPaletteIndex } = usePalettes();
+    const { selectedPaletteIndex, paletteSplitIndex } = usePalettes();
 
     const palettes = computed({
       get: () => props.modelValue,
       set: value => emit('update:modelValue', value),
     });
 
-    function addPalette() {
-      const newPalette = ['#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000'];
+    function addPalette(numberOfColors: 8 | 16) {
+      const newPalette = new Array(numberOfColors).fill('#000000');
+      if (numberOfColors === 16) {
+        paletteSplitIndex.value++;
+      }
       palettes.value = [...props.modelValue, newPalette];
     }
 

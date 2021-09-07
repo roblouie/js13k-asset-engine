@@ -11,7 +11,7 @@ import { SoundEffect } from '@/sound-effects/sound-effect.model';
 import { useLevel } from "@/level-editor/level.composable";
 import { Level } from "@/level-editor/level";
 
-export function packGameAssets(palettes: string[][], tiles: number[][], sprites: Sprite[], backgrounds: BackgroundLayer[][], songs: Song[], soundEffects: SoundEffect[], levels: Level[]): ArrayBuffer {
+export function packGameAssets(palettes: string[][], paletteSplitIndex: number, tiles: number[][], tileSplitIndex: number, sprites: Sprite[], backgrounds: BackgroundLayer[][], songs: Song[], soundEffects: SoundEffect[], levels: Level[]): ArrayBuffer {
   const { tilesToBytes } = useTiles();
   const { spritesToBytes } = useSprites();
   const { songsToBytes } = useSound();
@@ -19,8 +19,8 @@ export function packGameAssets(palettes: string[][], tiles: number[][], sprites:
   const { backgroundsToBytes } = useBackgrounds();
   const { levelsToBytes } = useLevel();
 
-  const palettesBuffer = palettesToBytes(palettes);
-  const tilesBuffer = tilesToBytes(tiles);
+  const palettesBuffer = palettesToBytes(palettes, paletteSplitIndex);
+  const tilesBuffer = tilesToBytes(tiles, tileSplitIndex);
   const spriteBuffer = spritesToBytes(sprites);
   const backgroundsBuffer = backgroundsToBytes(backgrounds);
   const songsBuffer = songsToBytes(songs);
