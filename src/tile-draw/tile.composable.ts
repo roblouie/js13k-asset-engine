@@ -25,14 +25,14 @@ function tilesToBytes(tiles: number[][], tileSplitIndex: number): ArrayBuffer {
   dataView.setUint8(1, tileSplitIndex);
 
   const flatTiles = tiles.flat();
+  let byteOffset = 2;
 
-  for (let i = 0; i < flatTiles.length; i+= 2) {
+  for (let i = 0; i < tileSplitIndex * 256; i+= 2) {
     const firstPixel = flatTiles[i];
     const secondPixel = flatTiles[i + 1];
 
     const byte = firstPixel + (secondPixel << 4);
-    const byteIndex = (i / 2) + 2;
-    dataView.setUint8(byteIndex, byte);
+    dataView.setUint8(byteOffset++, byte);
   }
 
   return tileBuffer;
