@@ -35,6 +35,22 @@ function tilesToBytes(tiles: number[][], tileSplitIndex: number): ArrayBuffer {
     dataView.setUint8(byteOffset++, byte);
   }
 
+  for (let i = 0; i < (numberOfTiles - tileSplitIndex) * 256; i++) {
+    const firstPixel = flatTiles[i];
+    const secondPixel = flatTiles[i + 1];
+    const thirdPixel = flatTiles[i + 2];
+    const fourthPixel = flatTiles[i + 3];
+    const fifthPixel = flatTiles[i + 4];
+    const sixthPixel = flatTiles[i + 5];
+    const seventhPixel = flatTiles[i + 6];
+    const eighthPixel = flatTiles[i + 7];
+
+    const data = firstPixel + (secondPixel << 3) + (thirdPixel << 6) + (fourthPixel << 9) + (fifthPixel << 12)
+      + (sixthPixel << 15) + (seventhPixel << 18) + (eighthPixel << 21);
+    dataView.setUint32(byteOffset, data, true);
+    byteOffset += 3;
+  }
+
   return tileBuffer;
 }
 
