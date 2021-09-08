@@ -26,7 +26,7 @@
       <section
           v-for="(tile, tileIndex) in tiles"
           :key="tile"
-          :class="{ 'selected': selectedTileIndex === tileIndex }"
+          :class="{ 'selected': selectedTileIndex === tileIndex, 'color-split': tileIndex === (tileSplitIndex - 1) }"
           @click="selectTile(tileIndex)"
       >
         <button @click="moveUp(tileIndex)">Up</button>
@@ -87,6 +87,8 @@ export default defineComponent({
     const coordinates = ref({ x: 0, y: 0 });
     const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes, tileSplitIndex } = useTiles();
 
+    console.log(tileSplitIndex);
+
     onMounted(() => {
       if (canvasElement.value) {
         canvasContext = canvasElement.value.getContext('2d') as CanvasRenderingContext2D;
@@ -106,7 +108,7 @@ export default defineComponent({
 
     function addTile(numberOfColors: 8 | 16) {
       if (numberOfColors === 8) {
-        tileSplitIndex.value++;
+        tileSplitIndex.value;
       }
       // Limit to 256 tiles so that when used in sprites one bit can be used for flip X and one for flip Y
       if (tiles.value.length < 256) {
@@ -213,6 +215,7 @@ export default defineComponent({
       deleteTile,
       moveUp,
       moveDown,
+      tileSplitIndex,
     };
   },
 });
@@ -267,5 +270,9 @@ canvas {
 button {
   font-size: 8px;
   padding: 1px;
+}
+
+.color-split {
+  background-color: red;
 }
 </style>

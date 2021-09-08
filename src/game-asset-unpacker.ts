@@ -95,7 +95,7 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
   const tileSplitIndex = dataView.getUint8(1);
 
   const sixteenColorTileSize = 128 * tileSplitIndex; // 256 pixels with half a byte per color === 128
-  const eightColorTileSize = 86 * (numberOfTiles - tileSplitIndex); // 256 pixels with a third of a byte per color === 96
+  const eightColorTileSize = 96 * (numberOfTiles - tileSplitIndex);
   const totalTilesByteSize = sixteenColorTileSize + eightColorTileSize + 2;
 
   const rawTileValues: number[] = [];
@@ -109,8 +109,9 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
     rawTileValues.push(firstValue, secondValue);
   }
 
+  const test = [];
+
   while (byteOffset < totalTilesByteSize) {
-    debugger;
     const eightPixelData = dataView.getUint32(byteOffset, true);
     byteOffset += 3;
 
@@ -124,8 +125,12 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
     const seventhPixel = (eightPixelData >> 18) & 0b111;
     const eighthPixel = (eightPixelData >> 21) & 0b111;
 
+    test.push(firstPixel, secondPixel, thirdPixel, fourthPixel, fifthPixel, sixthPixel, seventhPixel, eighthPixel);
+
     rawTileValues.push(firstPixel, secondPixel, thirdPixel, fourthPixel, fifthPixel, sixthPixel, seventhPixel, eighthPixel);
   }
+
+  console.log(test);
 
   const tileData = chunkArrayInGroups(rawTileValues, 256);
 
