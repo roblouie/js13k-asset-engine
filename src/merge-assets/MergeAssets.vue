@@ -125,14 +125,9 @@ function convertPalette() {
   const tileIndexes = [];
   sprites.value[selectedSprite.value].paletteNumber = selectedPaletteIndex.value;
   sprites.value[selectedSprite.value].spriteTiles.forEach(spriteTile => {
-    console.log('old');
-    console.log(tiles.value[spriteTile.tileNumber].toString());
     tiles.value[spriteTile.tileNumber] = tiles.value[spriteTile.tileNumber].map(tileVal => {
       return replacements.value[tileVal];
     });
-
-    console.log('new');
-    console.log(tiles.value[spriteTile.tileNumber].toString());
 
     if (!tileIndexes.includes(spriteTile.tileNumber)) {
       tileIndexes.push(spriteTile.tileNumber);
@@ -166,7 +161,6 @@ function selectSprite(spriteIndex: number) {
 
 function selectColorIndex(colorIndex: number, oldColorIndex: number) {
   replacements.value[oldColorIndex] = colorIndex;
-  console.log(replacements.value);
 }
 
 function drawSpriteToCanvas(sprite: Sprite) {
@@ -227,7 +221,6 @@ async function mergeAssets(event: any) {
 
     if (jsonObject.sprites) {
       const convertedSprites = jsonObject.sprites.map(sprite => {
-        console.log(tileOffset);
         const newSpriteTiles = sprite.spriteTiles.map(spriteTile => new SpriteTile(spriteTile.isFlippedX, spriteTile.isFlippedY, spriteTile.tileNumber + tileOffset));
 
         return Sprite.FromJson({

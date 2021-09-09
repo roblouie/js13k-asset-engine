@@ -87,8 +87,6 @@ export default defineComponent({
     const coordinates = ref({ x: 0, y: 0 });
     const { tiles, tileSize, drawToTile, tileToImageData, tilesToBytes, tileSplitIndex } = useTiles();
 
-    console.log(tileSplitIndex);
-
     onMounted(() => {
       if (canvasElement.value) {
         canvasContext = canvasElement.value.getContext('2d') as CanvasRenderingContext2D;

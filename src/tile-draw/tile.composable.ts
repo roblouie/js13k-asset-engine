@@ -52,7 +52,6 @@ function tilesToBytes(tiles: number[][], tileSplitIndex: number): ArrayBuffer {
     const seventhPixel = flatTiles[pixelIndex + 6];
     const eighthPixel = flatTiles[pixelIndex + 7];
     numberOfPixels += 8;
-    console.log(numberOfPixels);
 
     pixelIndex += 8;
 

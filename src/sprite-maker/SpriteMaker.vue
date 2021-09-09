@@ -3,7 +3,7 @@
 
 
   <div class="draw-wrapper">
-
+    <input v-model="tileSplitIndex"/>
     <div class="tile-chooser">
       <section
           v-for="(tile, tileIndex) in tiles"
@@ -117,7 +117,7 @@ export default defineComponent({
   components: { ImageDataIcon },
   setup() {
     const { palettes } = usePalettes();
-    const { tiles, tileSize, tileToImageData } = useTiles();
+    const { tiles, tileSize, tileToImageData, tileSplitIndex } = useTiles();
     const { sprites } = useSprites();
     const selectedPaletteIndex = ref(0);
     const selectedTileIndex = ref(0);
@@ -325,6 +325,7 @@ export default defineComponent({
       moveUp,
       moveDown,
       changeSpritePalette,
+      tileSplitIndex
     };
   },
 });

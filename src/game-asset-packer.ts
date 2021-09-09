@@ -35,6 +35,14 @@ export function packGameAssets(palettes: string[][], paletteSplitIndex: number, 
   const soundEffectsBytes = new Uint8Array(soundEffectsBuffer);
   const levelsBytes = new Uint8Array(levelsBuffer);
 
+  console.log(`Palettes are taking up: ${palettesBytes.length} bytes`);
+  console.log(`Tiles are taking up: ${tilesBytes.length} bytes`);
+  console.log(`Sprites are taking up: ${spriteBytes.length} bytes`);
+  console.log(`Backgrounds are taking up: ${backgroundsBytes.length} bytes`);
+  console.log(`Songs are taking up: ${songsBytes.length} bytes`);
+  console.log(`Sfx are taking up: ${soundEffectsBytes.length} bytes`);
+  console.log(`Levels are taking up: ${levelsBytes.length} bytes`);
+
   const combinedBytes = new Uint8Array(
     palettesBytes.byteLength
     + tilesBytes.byteLength

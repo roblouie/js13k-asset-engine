@@ -30,10 +30,6 @@
      <option>Pause</option>
      <option>Wave (left)</option>
      <option>Wave (right)</option>
-     <option>ScreenBounce (left)</option>
-     <option>ScreenBounce (right)</option>
-     <option>Swoop (left)</option>
-     <option>Swoop (right)</option>
    </select>
   </label>
 
@@ -67,11 +63,8 @@ import { ref } from 'vue';
 import { EnemyWave } from '@/level-editor/enemy-wave';
 import { StraightEnemy } from '@/level-editor/straight-enemy';
 import { PauseEnemy } from '@/level-editor/pause-enemy';
-import { Sprite } from '@/sprite-maker/sprite.model';
 import { Enemy } from '@/level-editor/enemy';
 import { WaveEnemy } from '@/level-editor/wave-enemy';
-import { ScreenEdgeBounceEnemy } from '@/level-editor/screen-edge-bounce-enemy';
-import { SwoopEnemy } from '@/level-editor/swoop-enemy';
 
 const { levels } = useLevel();
 const currentLevel = ref<Level>(null);
@@ -80,7 +73,7 @@ const shipType = ref('Straight');
 const color = ref(0);
 
 // 3 bits for enemy pattern (8 patterns)
-// 2 bits for color (4 colors) Should this be 5 colors? We'd need another bit
+// 2 bits for color (4 colors)
 
 // position needs 7 bits, so we need 2 bytes per enemy
 function addLevel() {
@@ -128,18 +121,6 @@ function addEnemy(position: number) {
     break;
   case 'Wave (right)':
     enemy = new WaveEnemy(position, color.value, false);
-    break;
-  case 'ScreenBounce (left)':
-    enemy = new ScreenEdgeBounceEnemy(position, color.value, true);
-    break;
-  case 'ScreenBounce (right)':
-    enemy = new ScreenEdgeBounceEnemy(position, color.value, false);
-    break;
-  case 'Swoop (left)':
-    enemy = new SwoopEnemy(position, color.value, true);
-    break;
-  case 'Swoop (right)':
-    enemy = new SwoopEnemy(position, color.value, false);
     break;
   }
 

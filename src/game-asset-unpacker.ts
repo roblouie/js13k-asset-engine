@@ -10,8 +10,6 @@ import { EnemyWave } from '@/level-editor/enemy-wave';
 import { StraightEnemy } from '@/level-editor/straight-enemy';
 import { PauseEnemy } from '@/level-editor/pause-enemy';
 import { WaveEnemy } from '@/level-editor/wave-enemy';
-import { ScreenEdgeBounceEnemy } from '@/level-editor/screen-edge-bounce-enemy';
-import { SwoopEnemy } from '@/level-editor/swoop-enemy';
 
 interface UnpackedAsset {
   data: any;
@@ -129,8 +127,6 @@ function bytesToTiles(arrayBuffer: ArrayBuffer, startingOffset: number): Unpacke
 
     rawTileValues.push(firstPixel, secondPixel, thirdPixel, fourthPixel, fifthPixel, sixthPixel, seventhPixel, eighthPixel);
   }
-
-  console.log(test);
 
   const tileData = chunkArrayInGroups(rawTileValues, 256);
 
@@ -440,16 +436,16 @@ function bytesToLevels(arrayBuffer: ArrayBuffer, startingOffset: number): Unpack
           wave.enemies.push(new WaveEnemy(position, colorNum, false));
           break;
         case 4:
-          wave.enemies.push(new ScreenEdgeBounceEnemy(position, colorNum, true));
+          wave.enemies.push(new WaveEnemy(position, colorNum, true));
           break;
         case 5:
-          wave.enemies.push(new ScreenEdgeBounceEnemy(position, colorNum, false));
+          wave.enemies.push(new WaveEnemy(position, colorNum, false));
           break;
         case 6:
-          wave.enemies.push(new SwoopEnemy(position, colorNum, true));
+          wave.enemies.push(new WaveEnemy(position, colorNum, true));
           break;
         case 7:
-          wave.enemies.push(new SwoopEnemy(position, colorNum, false));
+          wave.enemies.push(new WaveEnemy(position, colorNum, false));
           break;
         }
       }

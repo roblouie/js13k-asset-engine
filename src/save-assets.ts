@@ -12,5 +12,4 @@ export async function openAssets () {
 
   await fileSave(blobsInDirectory[0])
 
-  console.log(blobsInDirectory)
 }
